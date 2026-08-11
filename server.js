@@ -5,10 +5,9 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const crypto = require('crypto');
-const db = require('./lib/db');
+const { db, sessionStore } = require('./lib/db');
 const auth = require('./lib/auth');
 const seed = require('./lib/seed');
-const sessionStore = require('./lib/sessionStore');
 const dash = require('./lib/dashboard');
 
 const ROOT = __dirname;
