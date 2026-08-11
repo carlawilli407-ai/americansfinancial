@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>American Financial Associates - Retirement Plans, Investing, Brokerage, Wealth Management, Financial Planning and Advice, Online Trading.</title>
+<meta name="description" content="American Financial Associates is a financial services company that helps customers plan and achieve their most important financial goals. We offer a wide range of financial products and services for individuals and businesses, including trading & investing, retirement, spending & saving, and wealth management.">
+<link rel="stylesheet" href="/static/css/app.css?v=6">
+<link rel="stylesheet" href="/static/css/enhancements.css?v=5">
+<link rel="stylesheet" href="/static/css/home.css?v=14">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <!-- ===== Top info bar ===== -->
+  <div class="hp-topbar"><b>Markets open</b> &middot; S&amp;P 500 +0.41% &middot; Nasdaq +0.63% &middot; Dow +0.22% &middot; 10-Yr 4.18%</div>
+
+  <!-- ===== Header with dropdown nav ===== -->
+  <header class="hp-header">
+    <div class="hp-header-in">
+      <div class="hp-brand"><span class="dot"></span>American Financial Associates</div>
+
+      <input type="checkbox" id="hpMenuToggle" class="hp-menu-toggle" aria-label="Toggle Menu">
+            <label class="hp-menu-icon" for="hpMenuToggle">
+              <span class="hamburger-line"></span>
+              <span class="hamburger-line"></span>
+              <span class="hamburger-line"></span>
+            </label>
+            <div id="hpOverlay" class="hp-overlay"></div>
+
+      <nav class="hp-nav" id="hpNav">
+        <div class="hp-nav-item">
+          <a href="/dashboard">Accounts &amp; Trade</a>
+        </div>
+        <div class="hp-nav-item has-dropdown">
+          <a href="/investing" class="hp-nav-link">Investing</a>
+          <div class="hp-dropdown">
+            <a href="/investing">Investing overview</a>
+            <a href="/login">Stock trading</a>
+            <a href="/login">ETFs &amp; mutual funds</a>
+            <a href="/login">Options trading</a>
+            <a href="/login">Cryptocurrency</a>
+          </div>
+        </div>
+        <div class="hp-nav-item has-dropdown">
+          <a href="/retirement" class="hp-nav-link">Retirement</a>
+          <div class="hp-dropdown">
+            <a href="/retirement">Retirement planning</a>
+            <a href="/login">IRAs</a>
+            <a href="/login">401(k) rollovers</a>
+            <a href="/login">Roth IRA conversion</a>
+            <a href="/login">Annuities</a>
+          </div>
+        </div>
+        <div class="hp-nav-item has-dropdown">
+          <a href="/wealth" class="hp-nav-link">Wealth Management</a>
+          <div class="hp-dropdown">
+            <a href="/wealth">Wealth management</a>
+            <a href="/wealth">Financial advisors</a>
+            <a href="/wealth">Financial planning</a>
+            <a href="/login">Portfolio management</a>
+          </div>
+        </div>
+        <div class="hp-nav-item">
+          <a href="/research">News &amp; Research</a>
+        </div>
+        <div class="hp-nav-item">
+          <a href="/guidance">Guidance</a>
+        </div>
+        <div class="hp-cta">
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== Hero ===== -->
+  <section class="hp-hero">
+    <div class="hp-hero-gradient"></div>
+    <div class="hp-hero-in">
+      <div>
+        <span class="hp-badge"><span style="margin-right:6px">&#10003;</span> $0 commission trades. No account minimums.</span>
+        <h1>Your goals. Our guidance. One integrated platform.</h1>
+        <p>American Financial Associates, Inc gives you the tools, guidance, and accounts to reach your most important financial goals from your first investment to a confident retirement.</p>
+        <div class="quick">
+          <a class="btn" href="/signup">Open an account</a>
+          <a class="btn ghost" href="/login">Log in to your account</a>
+        </div>
+        <div class="hp-stats-row">
+          <div class="hp-stat-sm"><span class="hp-stat-n" data-count="0">$0</span><span class="hp-stat-l">commissions</span></div>
+          <div class="hp-stat-sm"><span class="hp-stat-n" data-count="0">$0</span><span class="hp-stat-l">account minimum</span></div>
+          <div class="hp-stat-sm"><span class="hp-stat-n" data-count="1300000">1.3M</span><span class="hp-stat-l">clients served</span></div>
+        </div>
+      </div>
+      <div class="hp-hero-art">
+        <img class="hp-art-img" src="/static/img/hero-banner.svg" alt="Preview of your American Financial Associates dashboard showing balances, performance, and holdings.">
+        <a class="panel-cta" href="/signup">Open your account &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Trust badges ===== -->
+  <section class="hp-trust reveal">
+    <div class="tb"><span class="ti">&#128274;</span> Bank-grade encryption</div>
+    <div class="tb"><span class="ti">&#129309;</span> Dedicated advisors</div>
+    <div class="tb"><span class="ti">&#128200;</span> Commission-free trades</div>
+    <div class="tb"><span class="ti">&#128737;</span> 24/7 account monitoring</div>
+  </section>
+
+  <!-- ===== Animated Markets ===== -->
+  <section class="hp-section reveal">
+    <h2>Today's markets</h2>
+    <p class="sub">A snapshot of major U.S. indices as of the latest market close.</p>
+    <div class="hp-idx-grid">
+      <div class="hp-idx">
+        <div class="hp-idx-name">S&amp;P 500</div>
+        <div class="hp-idx-val">5,438.12</div>
+        <div class="hp-idx-chg pos"><span class="pulse-dot pos"></span>&#9650; 0.41%</div>
+        <svg class="hp-spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true"><polyline class="up" points="0,17 12,15 24,16 36,10 48,12 60,5"/></svg>
+      </div>
+      <div class="hp-idx">
+        <div class="hp-idx-name">Nasdaq Composite</div>
+        <div class="hp-idx-val">17,862.34</div>
+        <div class="hp-idx-chg pos"><span class="pulse-dot pos"></span>&#9650; 0.63%</div>
+        <svg class="hp-spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true"><polyline class="up" points="0,14 12,16 24,11 36,13 48,7 60,4"/></svg>
+      </div>
+      <div class="hp-idx">
+        <div class="hp-idx-name">Dow Jones</div>
+        <div class="hp-idx-val">39,210.55</div>
+        <div class="hp-idx-chg pos"><span class="pulse-dot pos"></span>&#9650; 0.22%</div>
+        <svg class="hp-spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true"><polyline class="up" points="0,12 12,13 24,9 36,12 48,10 60,8"/></svg>
+      </div>
+      <div class="hp-idx">
+        <div class="hp-idx-name">10-Yr Treasury</div>
+        <div class="hp-idx-val">4.18%</div>
+        <div class="hp-idx-chg neg"><span class="pulse-dot neg"></span>&#9660; 0.03</div>
+        <svg class="hp-spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true"><polyline class="down" points="0,6 12,8 24,7 36,13 48,11 60,18"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Trending stocks ===== -->
+  <section class="hp-section reveal" style="padding-top:0">
+    <div class="hp-section-header">
+      <h2>Trending stocks</h2>
+      <p class="sub">What the market is talking about right now.</p>
+    </div>
+    <div class="hp-trending-grid">
+      <div class="hp-trending-card">
+        <div class="t-ticker">TSLA</div>
+        <div class="t-price">$242.58</div>
+        <div class="t-chg pos"><span class="pulse-dot pos"></span>&#9650; +3.24%</div>
+        <svg class="t-spark" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true">
+          <polyline class="up" points="0,21 12,18 24,20 36,14 48,16 60,10 72,12 84,6 100,8"></polyline>
+        </svg>
+      </div>
+      <div class="hp-trending-card">
+        <div class="t-ticker">NVDA</div>
+        <div class="t-price">$875.30</div>
+        <div class="t-chg pos"><span class="pulse-dot pos"></span>&#9650; +1.87%</div>
+        <svg class="t-spark" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true">
+          <polyline class="up" points="0,20 14,16 28,17 42,12 56,14 70,8 84,10 96,4"></polyline>
+        </svg>
+      </div>
+      <div class="hp-trending-card">
+        <div class="t-ticker">AAPL</div>
+        <div class="t-price">$198.45</div>
+        <div class="t-chg neg"><span class="pulse-dot neg"></span>&#9660; -0.42%</div>
+        <svg class="t-spark" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true">
+          <polyline class="down" points="0,6 14,10 28,8 42,14 56,12 70,18 84,16 96,20"></polyline>
+        </svg>
+      </div>
+      <div class="hp-trending-card">
+        <div class="t-ticker">GOOGL</div>
+        <div class="t-price">$156.72</div>
+        <div class="t-chg pos"><span class="pulse-dot pos"></span>&#9650; +2.10%</div>
+        <svg class="t-spark" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true">
+          <polyline class="up" points="0,19 16,15 32,16 48,10 64,12 80,7 96,9"></polyline>
+        </svg>
+      </div>
+    </div>
+  </section>
+  <section class="hp-section reveal">
+    <h2>What we help you do</h2>
+    <p class="sub">One platform for investing, retirement, and planning &mdash; built around your goals.</p>
+    <div class="hp-cards">
+      <div class="hp-card">
+        <div class="ico"><img src="/static/img/icon-retirement.svg" alt=""></div>
+        <h3>Retirement Planning</h3>
+        <p>IRAs, 401(k) rollovers, and 529 plans with guidance at every step.</p>
+        <a href="/retirement">Get started &rarr;</a>
+      </div>
+      <div class="hp-card">
+        <div class="ico"><img src="/static/img/icon-investing.svg" alt=""></div>
+        <h3>Investing &amp; Trading</h3>
+        <p>Trade stocks, ETFs, mutual funds, and options with clear, low-cost pricing.</p>
+        <a href="/investing">Explore investing &rarr;</a>
+      </div>
+      <div class="hp-card">
+        <div class="ico"><img src="/static/img/icon-wealth.svg" alt=""></div>
+        <h3>Wealth Management</h3>
+        <p>Personalized advice and planning from dedicated financial professionals.</p>
+        <a href="/wealth">Talk to an advisor &rarr;</a>
+      </div>
+      <div class="hp-card">
+        <div class="ico"><img src="/static/img/icon-planning.svg" alt=""></div>
+        <h3>Financial Planning</h3>
+        <p>Build a plan for saving, spending, and reaching long-term goals.</p>
+        <a href="/planning">Build your plan &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Feature highlights with animated icons ===== -->
+  <section class="hp-section reveal">
+    <h2>Built for modern investors</h2>
+    <p class="sub">Tools, technology, and service working together to help you succeed.</p>
+    <div class="hp-highlight-grid">
+      <div class="hp-highlight">
+        <svg class="hp-hl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="6" y2="18"/><polyline points="6 12 10 16 18 8"/></svg>
+        <h3>Real-time data</h3>
+        <p>Live market prices, streaming news, and real-time portfolio updates across all your devices.</p>
+      </div>
+      <div class="hp-highlight">
+        <svg class="hp-hl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="14" y1="2" x2="20" y2="8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><circle cx="10" cy="9" r="1"/></svg>
+        <h3>Smart insights</h3>
+        <p>Personalized recommendations, rebalancing alerts, and goal-based suggestions powered by data.</p>
+      </div>
+      <div class="hp-highlight">
+        <svg class="hp-hl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M5 15h14v-6H5z"/></svg>
+        <h3>Tax-smart</h3>
+        <p>Automated tax-loss harvesting, donation strategies, and income optimization to keep more of what you earn.</p>
+      </div>
+      <div class="hp-highlight">
+        <svg class="hp-hl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10a2 2 0 0 1 2 2v5.83z"/><line x1="7" y1="7" x2="7.01" y2="7"/><line x1="15" y1="12" x2="15.01" y2="12"/></svg>
+        <h3>Expert advice</h3>
+        <p>Access to certified financial planners and portfolio managers for personalized guidance.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Financial planning roadmap ===== -->
+  <section class="hp-section reveal">
+    <div class="hp-planning-grid">
+      <div class="hp-planning-text">
+        <h2>Plan for what matters</h2>
+        <p class="sub">From your first investment to a confident retirement, our planning tools help you model goals, track progress, and adjust as life changes.</p>
+        <div class="hp-planning-stats">
+          <div class="hp-plan-stat"><span class="n">92%</span><span class="l">of members who use planning tools stay on track</span></div>
+          <div class="hp-plan-stat"><span class="n">5.2&#9733;</span><span class="l">average member satisfaction with planning</span></div>
+        </div>
+        <div class="hp-app-cta">
+          <a class="btn" href="/planning">Build your plan</a>
+        </div>
+      </div>
+      <div class="hp-planning-art">
+        <img src="/static/img/planning-illustration.svg" alt="Financial planning roadmap showing milestones and progress toward retirement goals." class="hp-plan-svg">
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Topics grid ===== -->
+  <section class="hp-section reveal" style="padding-top:0;">
+    <h2>Explore popular topics</h2>
+    <p class="sub">Jump straight to the areas our members use most.</p>
+    <div class="hp-topics">
+      <a class="hp-topic" href="/investing"><span class="em">&#128200;</span><span><span class="t">Trading &amp; Accounts</span><br><span class="d">Platforms, order types, and cash management</span></span></a>
+      <a class="hp-topic" href="/login"><span class="em">&#128184;</span><span><span class="t">Mutual Funds &amp; ETFs</span><br><span class="d">Research and build a diversified portfolio</span></span></a>
+      <a class="hp-topic" href="/retirement"><span class="em">&#127793;</span><span><span class="t">IRAs &amp; 401(k) Rollovers</span><br><span class="d">Plan and save for a confident retirement</span></span></a>
+      <a class="hp-topic" href="/wealth"><span class="em">&#129309;</span><span><span class="t">Advisory &amp; Wealth</span><br><span class="d">Personalized planning from professionals</span></span></a>
+    </div>
+  </section>
+
+  <!-- ===== Our Story ===== -->
+  <section class="hp-section reveal">
+    <div class="hp-section-header">
+      <h2>Our story</h2>
+      <p class="sub">American Financial Associates was founded in 2008 to bring sophisticated, low-cost investment management to everyday investors. Here's how we got here.</p>
+    </div>
+    <div class="hp-story-grid">
+      <div class="hp-story-text">
+        <div class="hp-story-item">
+          <div class="hp-story-year">2008</div>
+          <div class="hp-story-title">Founded</div>
+          <div class="hp-story-desc">A group of CFA charterholders and engineers set out to build a better way to invest.</div>
+        </div>
+        <div class="hp-story-item">
+          <div class="hp-story-year">2014</div>
+          <div class="hp-story-title">1M members</div>
+          <div class="hp-story-desc">Hit our first million members and launched our award-winning mobile app.</div>
+        </div>
+        <div class="hp-story-item">
+          <div class="hp-story-year">2020</div>
+          <div class="hp-story-title">Public company</div>
+          <div class="hp-story-desc">IPO on the NYSE under AFA, fueling our mission to democratize finance.</div>
+        </div>
+        <div class="hp-story-item">
+          <div class="hp-story-year">2025</div>
+          <div class="hp-story-title">$80B+ AUM</div>
+          <div class="hp-story-desc">Now managing over $80 billion in assets, with tools serving 1.3M+ members.</div>
+        </div>
+      </div>
+      <div class="hp-story-art">
+        <img src="/static/img/hero-banner.svg" alt="American Financial Associates platform dashboard showcasing portfolio, trading, and planning tools." class="hp-story-img">
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Benefits ===== -->
+  <div class="hp-section reveal" style="padding-top:0">
+    <div class="hp-benefits-grid">
+      <div class="hp-benefit">
+        <div class="hp-benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M6 6l6-4 6 4"/><rect x="4.5" y="6" width="15" height="14" rx="2" fill="currentColor" fill-opacity=".06"/></svg></div>
+        <h3>Low, transparent costs</h3>
+        <p>No account fees. No advisory fees on auto-rebalancing. Just clear, honest pricing that keeps more money working for you.</p>
+      </div>
+      <div class="hp-benefit">
+        <div class="hp-benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s9-7 11-7 11 7 11 7-9 7-11 0S1 12 1 12z"/><circle cx="12" cy="12" r="3" fill="currentColor" fill-opacity=".06"/></svg></div>
+        <h3>Human + machine</h3>
+        <p>Dedicated advisors backed by data-driven insights and automated tools that adapt to your goals in real time.</p>
+      </div>
+      <div class="hp-benefit">
+        <div class="hp-benefit-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="14" y1="2" x2="20" y2="8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg></div>
+        <h3>Unified platform</h3>
+        <p>Bring all your accounts — 401(k), IRA, taxable, crypto — into one intuitive view that tells you where you stand.</p>
+      </div>
+    </div>
+  </div>
+  <section class="hp-strip reveal">
+    <div class="hp-strip-in">
+      <div class="hp-stat"><div class="n">$0</div><div class="l">account minimum to get started</div></div>
+      <div class="hp-stat"><div class="n">24/7</div><div class="l">secure account access</div></div>
+      <div class="hp-stat"><div class="n">1</div><div class="l">integrated view of your finances</div></div>
+      <div class="hp-stat"><div class="n">100%</div><div class="l">personalized to your goals</div></div>
+    </div>
+  </section>
+
+  <!-- ===== Why us ===== -->
+  <section class="hp-section reveal">
+    <h2>Why American Financial Associates</h2>
+    <p class="sub">A clearer, simpler way to manage your financial life.</p>
+    <div class="hp-why">
+      <div class="b"><div class="h">Guidance at every step</div><p class="p">From your first account to long-term planning, get the help you need when you need it.</p></div>
+      <div class="b"><div class="h">Low, transparent costs</div><p class="p">Clear pricing with no surprises, so more of your money stays invested.</p></div>
+      <div class="b"><div class="h">Security you can trust</div><p class="p">Bank-grade encryption and safeguards protect your accounts and data.</p></div>
+    </div>
+    <div class="hp-why-art">
+      <svg viewBox="0 0 240 120" class="hp-why-svg" aria-hidden="true">
+        <defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#368727"/><stop offset="1" stop-color="#0F5319"/></linearGradient></defs>
+        <rect x="10" y="45" width="60" height="14" rx="3" fill="url(#wg)" opacity=".22"/>
+        <rect x="10" y="64" width="44" height="10" rx="2" fill="url(#wg)" opacity=".14"/>
+        <path d="M78 40 L108 18 L134 44 L160 16 L200 58 L200 100 L40 100 Z" fill="url(#wg)" opacity=".10"/>
+        <circle cx="128" cy="30" r="6" fill="url(#wg)" opacity=".36"/>
+        <circle cx="164" cy="48" r="4" fill="url(#wg)" opacity=".20"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ===== Security & Trust ===== -->
+  <section class="hp-trust-section reveal">
+    <div class="hp-section-header">
+      <h2>Security and trust</h2>
+      <p class="sub">Your money and data are protected by industry-leading safeguards, and backed by regulators that oversee $trillions in assets.</p>
+    </div>
+    <div class="hp-trust-grid">
+      <div class="hp-trust-card">
+        <div class="hp-trust-icon"><span style="font-size:28px">&#128274;</span></div>
+        <div class="hp-trust-title">Bank-grade encryption</div>
+        <div class="hp-trust-desc">AES-256 encryption at rest and in transit. All data is encrypted end-to-end and never sold to third parties.</div>
+      </div>
+      <div class="hp-trust-card">
+        <div class="hp-trust-icon"><span style="font-size:28px">&#129658;</span></div>
+        <div class="hp-trust-title">SIPC protected</div>
+        <div class="hp-trust-desc">Up to $500,000 in protection per customer. Our clearing partner carries additional private insurance coverage of $1B+.</div>
+      </div>
+      <div class="hp-trust-card">
+        <div class="hp-trust-icon"><span style="font-size:28px">&#128200;</span></div>
+        <div class="hp-trust-title">Regulated & transparent</div>
+        <div class="hp-trust-desc">SEC-registered broker-dealer and investment adviser. FINRA monitored. Real-time fee reporting in your dashboard.</div>
+      </div>
+    </div>
+    <div class="hp-trust-stats">
+      <div class="hp-trust-stat"><span class="n">$80B+</span><span class="l">assets managed</span></div>
+      <div class="hp-trust-stat"><span class="n">1.3M+</span><span class="l">members served</span></div>
+      <div class="hp-trust-stat"><span class="n">4.8&#9733;</span><span class="l">avg. client rating</span></div>
+    </div>
+  </section>
+  <section class="hp-section reveal">
+    <h2>How it works</h2>
+    <p class="sub">Getting started takes just a few minutes.</p>
+    <div class="hp-how-grid">
+      <div class="hp-step">
+        <div class="hp-step-num">1</div>
+        <div class="hp-step-title">Open your account</div>
+        <div class="hp-step-desc">Fill out our quick application to set up your brokerage or IRA account.</div>
+      </div>
+      <div class="hp-step">
+        <div class="hp-step-num">2</div>
+        <div class="hp-step-title">Fund &amp; explore</div>
+        <div class="hp-step-desc">Link your bank, transfer funds, and start researching investments.</div>
+      </div>
+      <div class="hp-step">
+        <div class="hp-step-num">3</div>
+        <div class="hp-step-title">Build your portfolio</div>
+        <div class="hp-step-desc">Buy your first shares, set up automatic investing, and track your progress.</div>
+      </div>
+    </div>
+    <div class="hp-how-art">
+      <svg viewBox="0 0 300 80" class="hp-how-svg" aria-hidden="true">
+        <defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#368727"/><stop offset="1" stop-color="#0F5319"/></linearGradient></defs>
+        <line x1="20" y1="40" x2="280" y2="40" stroke="#d9d8d5" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="50" cy="40" r="18" fill="url(#hg)" opacity=".9"/>
+        <text x="50" y="45" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">1</text>
+        <circle cx="150" cy="40" r="18" fill="url(#hg)" opacity=".9"/>
+        <text x="150" y="45" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">2</text>
+        <circle cx="250" cy="40" r="18" fill="url(#hg)" opacity=".9"/>
+        <text x="250" y="45" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">3</text>
+        <path d="M58 40 Q100 20 142 40" fill="none" stroke="#d6f0db" stroke-width="3" stroke-linecap="round"/>
+        <path d="M158 40 Q200 20 242 40" fill="none" stroke="#d6f0db" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </section>
+
+
+
+  <!-- ===== CTA band ===== -->
+  <section class="hp-cta-band reveal">
+    <div class="hp-cta-in">
+      <h2>Open your account in minutes</h2>
+      <p>Join American Financial Associates and get a clear, unified view of your investments, retirement, and planning — all in one secure place.</p>
+      <div class="hp-cta-actions">
+        <a class="btn" href="/signup">Open an account</a>
+        <a class="btn ghost" href="/login">Log in</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="hp-footer">
+    <div class="hp-footer-in">
+      <div>
+        <h4>Investing</h4>
+        <a href="/investing">Investing overview</a>
+        <a href="/login">Stock trading</a>
+        <a href="/login">Mutual Funds</a>
+        <a href="/login">ETFs</a>
+        <a href="/login">Options</a>
+        <a href="/login">Crypto</a>
+      </div>
+      <div>
+        <h4>Retirement</h4>
+        <a href="/retirement">Retirement planning</a>
+        <a href="/login">IRAs</a>
+        <a href="/login">401(k) Rollovers</a>
+        <a href="/login">Roth IRA</a>
+        <a href="/login">Annuities</a>
+      </div>
+      <div>
+        <h4>Wealth Management</h4>
+        <a href="/wealth">Overview</a>
+        <a href="/wealth">Financial Advisors</a>
+        <a href="/wealth">Financial Planning</a>
+        <a href="/login">Portfolio Management</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="/legal">About American Financial Associates</a>
+        <a href="/legal">Careers</a>
+        <a href="/research">Newsroom</a>
+        <a href="/legal">Contact Us</a>
+        <a href="/guidance">Guidance</a>
+      </div>
+      <div>
+        <h4>Security &amp; Legal</h4>
+        <a href="/legal">Security</a>
+        <a href="/legal">Privacy</a>
+        <a href="/legal">Terms of Use</a>
+        <a href="/legal">Accessibility</a>
+      </div>
+    </div>
+    <div class="hp-legal">
+      &copy; 2026 American Financial Associates. All rights reserved. Investing involves risk, including the possible loss of principal.
+      <span class="muted" style="display:block;margin-top:6px;font-size:12px">DBA: AMERICAN FINANCE | HQ: 1700 Northampton Street, Suite A, Easton, PA 18042</span>
+    </div>
+  </footer>
+
+  <!-- ===== Scroll reveal + market pulse animation ===== -->
+  <script>
+    document.documentElement.classList.add('js');
+    (function () {
+      var els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window) || !els.length) {
+        els.forEach(function (e) { e.classList.add('in-view'); });
+        return;
+      }
+      var o = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('in-view'); o.unobserve(e.target); }
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.04 });
+      els.forEach(function (e) { o.observe(e); });
+      setTimeout(function () { els.forEach(function (e) { e.classList.add('in-view'); }); }, 1600);
+    })();
+  </script>
+  <script src="/static/js/home-auth.js" defer></script>
+
+  <!-- ===== Vibrant homepage enhancements ===== -->
+  <script>
+    (function () {
+      // ---- animated counters ----
+      var counters = document.querySelectorAll('[data-count]');
+      counters.forEach(function (el) {
+        var target = parseFloat(el.getAttribute('data-count'));
+        var suffix = el.getAttribute('data-suffix') || '';
+        var prefix = el.getAttribute('data-prefix') || '';
+        if (isNaN(target)) return;
+        var start = null;
+        function step(ts) {
+          if (!start) start = ts;
+          var pct = Math.min((ts - start) / 1400, 1);
+          var val = Math.floor(target * pct);
+          if (target >= 1000 && target < 1000000) {
+            el.textContent = prefix + (val / 1000).toFixed(0) + 'K' + suffix;
+          } else if (target >= 1000000) {
+            el.textContent = prefix + (val / 1000000).toFixed(1) + 'M' + suffix;
+          } else if (target >= 100) {
+            el.textContent = prefix + val.toFixed(2) + suffix;
+          } else {
+            el.textContent = prefix + val + suffix;
+          }
+          if (pct < 1) requestAnimationFrame(step);
+        }
+        el.style.opacity = '0';
+        var obs = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) {
+              el.style.opacity = '1';
+              requestAnimationFrame(step);
+              obs.unobserve(el);
+            }
+          });
+        });
+        obs.observe(el);
+      });
+
+      // ---- hero parallax ----
+      var heroArt = document.querySelector('.hp-hero-art');
+      var heroImg = document.querySelector('.hp-art-img');
+      if (heroArt && heroImg) {
+        heroArt.addEventListener('mousemove', function (e) {
+          var r = heroArt.getBoundingClientRect();
+          var x = (e.clientX - r.left) / r.width - 0.5;
+          var y = (e.clientY - r.top) / r.height - 0.5;
+          heroImg.style.transform = 'translate(' + (x * 12) + 'px,' + (y * 12) + 'px) rotate(' + (x * 3) + 'deg)';
+        });
+        heroArt.addEventListener('mouseleave', function () {
+          heroImg.style.transform = '';
+        });
+      }
+
+      // ---- mobile nav toggle + header scroll ----
+      var menuToggle = document.getElementById('hpMenuToggle');
+      var nav = document.querySelector('.hp-nav');
+      if (menuToggle && nav) {
+        menuToggle.addEventListener('change', function () {
+          nav.classList.toggle('open', this.checked);
+          document.body.style.overflow = this.checked ? 'hidden' : '';
+        });
+        nav.addEventListener('click', function (e) {
+          if (e.target.tagName === 'A' && window.innerWidth <= 980) {
+            menuToggle.checked = false;
+            nav.classList.remove('open');
+            document.body.style.overflow = '';
+          }
+        });
+      }
+
+      var header = document.querySelector('.hp-header');
+      if (header) {
+        window.addEventListener('scroll', function () {
+          header.classList.toggle('scrolled', window.scrollY > 40);
+        });
+      }
+    })();
+
+    // ===== live market chart animation =====
+    (function () {
+      // Animate sparkline SVGs with a draw-on-load effect
+      var sparks = document.querySelectorAll('.hp-spark, .t-spark');
+      sparks.forEach(function (svg) {
+        var poly = svg.querySelector('polyline');
+        if (!poly) return;
+        var len = poly.getTotalLength();
+        poly.style.strokeDasharray = len;
+        poly.style.strokeDashoffset = len;
+        requestAnimationFrame(function () {
+          poly.style.transition = 'stroke-dashoffset 1.2s ease-out';
+          poly.style.strokeDashoffset = '0';
+        });
+      });
+
+      // Simulate live market updates (random walk on displayed values)
+      function fmt(n, d) {
+        return n.toFixed(d);
+      }
+      var tickers = [
+        { name: '.hp-idx:nth-child(1)', prefix: '', decimals: 2, isPct: true },
+        { name: '.hp-idx:nth-child(2)', prefix: '', decimals: 2, isPct: true },
+        { name: '.hp-idx:nth-child(3)', prefix: '', decimals: 2, isPct: true },
+        { name: '.hp-idx:nth-child(4)', prefix: '', decimals: 2, isPct: true },
+        { name: '.hp-trending-card:nth-child(1)', isPrice: true },
+        { name: '.hp-trending-card:nth-child(2)', isPrice: true },
+        { name: '.hp-trending-card:nth-child(3)', isPrice: true },
+        { name: '.hp-trending-card:nth-child(4)', isPrice: true },
+      ];
+
+      // Only animate prices, not the initial page load (to avoid jank)
+      setTimeout(function loop() {
+        var idx = Math.floor(Math.random() * tickers.length);
+        var t = tickers[idx];
+        var card = document.querySelector(t.name);
+        if (!card) { setTimeout(loop, 2000 + Math.random() * 3000); return; }
+        var chgEl = card.querySelector('.hp-idx-chg, .t-chg');
+        if (!chgEl) { setTimeout(loop, 2000 + Math.random() * 3000); return; }
+        var isUp = Math.random() > 0.45;
+        var pct = (Math.random() * 1.5 + 0.2).toFixed(2);
+        var cls = isUp ? 'pos' : 'neg';
+        chgEl.className = chgEl.className.replace(/pos|neg/g, '').trim() + ' ' + cls;
+        chgEl.innerHTML = '<span class="pulse-dot ' + cls + '"></span>' + (isUp ? '▲' : '▼') + ' ' + pct + '%';
+        // Update value slightly
+        var valEl = card.querySelector('.hp-idx-val, .t-price');
+        if (valEl && t.isPrice) {
+          var v = parseFloat(valEl.textContent.replace(/[\$,]/g, ''));
+          if (!isNaN(v)) {
+            var delta = v * (Math.random() * 0.006);
+            if (isUp) v += delta; else v -= delta;
+            valEl.textContent = '$' + v.toFixed(2);
+          }
+        }
+        setTimeout(loop, 3000 + Math.random() * 4000);
+      }, 6000);
+    })();
+
+      // ===== Responsive dropdown navigation =====
+            (function() {
+              var nav = document.querySelector('.hp-nav');
+              var breakpoint = 980;
+              function isMobile() { return window.innerWidth <= breakpoint; }
+              function setupDropdowns() {
+                // Dropdown toggle - works on both desktop (hover) and mobile (click)
+                document.querySelectorAll('.hp-nav .has-dropdown > .hp-nav-link').forEach(function(link) {
+                  link.addEventListener('click', function(e) {
+                    var parent = link.parentElement;
+                    var wasOpen = parent.classList.contains('open');
+                    // Close all other open dropdowns
+                    nav.querySelectorAll('.has-dropdown.open').forEach(function(el) { el.classList.remove('open'); });
+                    if (!wasOpen) {
+                      parent.classList.add('open');
+                      e.preventDefault();
+                    }
+                  });
+                });
+                
+                // Mobile Menu Toggle
+                var menuToggle = document.getElementById('hpMenuToggle');
+                var overlay = document.getElementById('hpOverlay');
+                function toggleMenu() {
+                  document.body.classList.toggle('nav-open');
+                }
+                if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
+                if (overlay) overlay.addEventListener('click', toggleMenu);
+              }
+              function init() {
+                setupDropdowns();
+              }
+              if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+              } else {
+                init();
+              }
+            })();
+        </script>
+</html>

@@ -1,0 +1,49 @@
+<%- include('partials/head', {title:'Transaction Manager - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Transaction manager</h1>
+      <a class="btn btn-secondary btn-sm" href="/admin">Back to users</a>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="v"><%= users.length %></div><div class="l">Users with accounts</div></div>
+      <div class="stat"><div class="v"><%= users.reduce(function(s,u){return s+u.txCount},0) %></div><div class="l">Total transactions</div></div>
+      <div class="stat"><div class="v"><% var pendingTotal = 0; users.forEach(function(u){pendingTotal += (u.pendingCount||0)}); %><%= pendingTotal %></div><div class="l">Pending approval</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Users</h2>
+      <div style="margin-bottom:12px">
+        <a class="btn btn-secondary btn-sm" href="/admin/transactions/pending" style="background:#fff3cd;border-color:#ffe69c">Review pending transactions (<%= pendingTotal %>)</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th><th>Full name</th><th>Email</th>
+            <th>Role</th><th>Accounts</th><th>Transactions</th><th>Created</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(function(u){ %>
+          <tr>
+            <td><strong><%= u.username %></strong></td>
+            <td><%= u.full_name %></td>
+            <td><%= u.email %></td>
+            <td><span class="role <%= u.role %>"><%= u.role %></span></td>
+            <td><%= u.accountCount %></td>
+            <td class="muted"><%= u.txCount || 0 %></td>
+            <td class="muted"><%= u.created_at %></td>
+            <td>
+              <a class="btn btn-secondary btn-sm" href="/admin/users/<%= u.id %>/transactions">View transactions</a>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

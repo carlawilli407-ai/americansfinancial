@@ -1,0 +1,68 @@
+<%- include('partials/head', {title:'Transactions for ' + target.full_name + ' - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Transactions &mdash; <%= target.full_name %></h1>
+      <div style="display:flex;gap:8px">
+        <a class="btn btn-secondary btn-sm" href="/admin/transactions">Back to all users</a>
+        <a class="btn btn-secondary btn-sm" href="/admin">Admin console</a>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="v"><%= target.username %></div><div class="l">Username</div></div>
+      <div class="stat"><div class="v"><%= accounts.length %></div><div class="l">Accounts</div></div>
+      <div class="stat"><div class="v"><%= txs.length %></div><div class="l">Transactions</div></div>
+    </div>
+
+    <div class="card">
+      <h2>All transactions</h2>
+      <% if (txs.length === 0) { %>
+        <div class="empty">No transactions found for this user.</div>
+      <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th><th>Account</th><th>Type</th><th>Description</th><th>Symbol</th>
+            <th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th>
+            <th class="num">Balance</th><th>Status</th><th>Reference</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% txs.forEach(function(tx){ %>
+          <tr>
+            <td class="muted"><%= tx.tdate %></td>
+            <td><%= tx.account_type || '—' %></td>
+            <td><span class="role user"><%= tx.type %></span></td>
+            <td><%= tx.description %></td>
+            <td><strong><%= tx.symbol || '—' %></strong></td>
+            <td class="num"><%= tx.quantity != null ? tx.quantity : '—' %></td>
+            <td class="num"><%= tx.price != null ? h.money(tx.price) : '—' %></td>
+            <td class="num <%= tx.amount>=0?'pos':'neg' %>"><%= h.signedMoney(tx.amount) %></td>
+            <td class="num"><%= tx.balance_after != null ? h.money(tx.balance_after) : '—' %></td>
+            <td><span class="role user"><%= tx.status %></span><% if (tx.status === 'pending') { %><span class="badge" style="background:#fff3cd;color:#855a00;border:1px solid #ffdd57;margin-left:4px">Pending approval</span><% } %></td>
+            <td class="muted"><%= tx.reference_id || '—' %></td>
+            <td>
+              <a class="btn btn-secondary btn-sm" href="/admin/transactions/<%= tx.id %>/edit">Edit</a>
+              <% if (tx.status === 'pending') { %>
+              <form method="post" action="/admin/transactions/<%= tx.id %>/approve" style="display:inline-block;margin:4px 0">
+                <button type="submit" class="btn btn-sm" onclick="return confirm('Approve transaction <%= tx.id %>?');" style="background:#e6f4ea;color:#0a7333;border:1px solid #7dc388;">Approve</button>
+              </form>
+              <form method="post" action="/admin/transactions/<%= tx.id %>/decline" style="display:inline-block;margin:4px 0">
+                <button type="submit" class="btn btn-sm" onclick="return confirm('Decline transaction <%= tx.id %>?');" style="background:#fdecea;color:#981077;border:1px solid #f5c2c0;">Decline</button>
+              </form>
+              <% } else { %>
+              <form method="post" action="/admin/transactions/<%= tx.id %>/delete" style="display:inline" onsubmit="return confirm('Delete transaction <%= tx.id %>?');"><button class="btn btn-sm" type="submit" style="background:#fdecea;color:#981077;border:1px solid #f5c2c0;">Delete</button></form>
+              <% } %>
+            </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <% } %>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

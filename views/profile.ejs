@@ -1,0 +1,264 @@
+<%- include('partials/head', {title:'Profile - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>My Profile</h1>
+      <a class="btn btn-secondary btn-sm" href="/dashboard">Back to Dashboard</a>
+    </div>
+
+    <% if (pw_success == '1') { %>
+    <div class="msg msg-ok" style="margin-bottom:16px;padding:10px 12px;background:#eaf5ee;border:1px solid #cfeddc;border-radius:4px;font-size:13px">Password changed successfully.</div>
+    <% } %>
+    <% if (pw_error == '1') { %>
+    <div class="msg msg-err" style="margin-bottom:16px;padding:10px 12px;background:#fdecea;border:1px solid #f5c2c0;border-radius:4px;font-size:13px;color:#981077">Current password is incorrect.</div>
+    <% } %>
+    <% if (pw_error == '2') { %>
+    <div class="msg msg-err" style="margin-bottom:16px;padding:10px 12px;background:#fdecea;border:1px solid #f5c2c0;border-radius:4px;font-size:13px;color:#981077">New password must be at least 6 characters.</div>
+    <% } %>
+    <% if (pw_error == '3') { %>
+    <div class="msg msg-err" style="margin-bottom:16px;padding:10px 12px;background:#fdecea;border:1px solid #f5c2c0;border-radius:4px;font-size:13px;color:#981077">New passwords do not match.</div>
+    <% } %>
+
+    <!-- Account info card -->
+    <div class="card" style="margin-bottom:24px">
+      <h2>Account information</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px">
+        <div>
+          <div class="muted" style="font-size:12px">Username</div>
+          <div style="font-weight:600"><%= user.username %></div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:12px">Email</div>
+          <div style="font-weight:600"><%= user.email %></div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:12px">Full name</div>
+          <div style="font-weight:600"><%= user.full_name %></div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:12px">Member ID</div>
+          <div style="font-weight:600"><%= user.member_id || user.id %></div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:12px">Member since</div>
+          <div style="font-weight:600"><%= user.created_at ? user.created_at.replace('T', ' ').substring(0, 16) : 'N/A' %></div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:12px">Status</div>
+          <div style="font-weight:600"><%= user.status %></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change password card -->
+    <div class="card" style="margin-bottom:24px">
+      <h2>Change password</h2>
+      <form method="post" action="/profile/password" style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px">
+        <div>
+          <label>Current password</label>
+          <input type="password" name="current_password" required>
+        </div>
+        <div>
+          <label>New password</label>
+          <input type="password" name="new_password" required minlength="6">
+        </div>
+        <div style="grid-column:1">
+          <label>Confirm new password</label>
+          <input type="password" name="confirm_password" required minlength="6">
+        </div>
+        <div style="align-content:end">
+          <button class="btn btn-primary" type="submit">Update password</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Personal info form -->
+    <div class="form-card">
+    <% const p = profile || {}; %>
+        <form method="post" action="/profile">
+          <h2>Personal &amp; financial information</h2>
+          <div class="field">
+            <label>Phone</label>
+            <input name="phone" value="<%= p.phone || '' %>">
+          </div>
+          <div class="field">
+            <label>Address Line 1</label>
+            <input name="address_line1" value="<%= p.address_line1 || '' %>">
+          </div>
+          <div class="field">
+            <label>Address Line 2</label>
+            <input name="address_line2" value="<%= p.address_line2 || '' %>">
+          </div>
+          <div class="field">
+            <label>City</label>
+            <input name="city" value="<%= p.city || '' %>">
+          </div>
+          <div class="field">
+            <label>State</label>
+            <input name="state" value="<%= p.state || '' %>">
+          </div>
+          <div class="field">
+            <label>ZIP Code</label>
+            <input name="zip_code" value="<%= p.zip_code || '' %>">
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <input name="country" value="<%= p.country || 'USA' %>">
+          </div>
+          <div class="field">
+            <label>Date of Birth (YYYY-MM-DD)</label>
+            <input name="date_of_birth" type="date" value="<%= p.date_of_birth || '' %>">
+          </div>
+          <div class="field">
+            <label>SSN (last 4)</label>
+            <input name="ssn_last4" value="<%= p.ssn_last4 || '' %>">
+          </div>
+          <div class="field">
+            <label>Citizenship</label>
+            <input name="citizenship" value="<%= p.citizenship || 'US' %>">
+          </div>
+          <div class="field">
+            <label>Tax ID Type</label>
+            <select name="tax_id_type">
+              <option value="SSN" <%= p.tax_id_type==='SSN' ? 'selected' : '' %>>SSN</option>
+              <option value="ITIN" <%= p.tax_id_type==='ITIN' ? 'selected' : '' %>>ITIN</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tax ID</label>
+            <input name="tax_id" value="<%= p.tax_id || '' %>">
+          </div>
+          <div class="field">
+            <label>Employment Status</label>
+            <select name="employment_status">
+              <option value="">-- Select --</option>
+              <option value="employed" <%= p.employment_status==='employed' ? 'selected' : '' %>>Employed</option>
+              <option value="self-employed" <%= p.employment_status==='self-employed' ? 'selected' : '' %>>Self-employed</option>
+              <option value="retired" <%= p.employment_status==='retired' ? 'selected' : '' %>>Retired</option>
+              <option value="unemployed" <%= p.employment_status==='unemployed' ? 'selected' : '' %>>Unemployed</option>
+              <option value="student" <%= p.employment_status==='student' ? 'selected' : '' %>>Student</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Employer Name</label>
+            <input name="employer_name" value="<%= p.employer_name || '' %>">
+          </div>
+          <div class="field">
+            <label>Employer Address</label>
+            <input name="employer_address" value="<%= p.employer_address || '' %>">
+          </div>
+          <div class="field">
+            <label>Job Title</label>
+            <input name="job_title" value="<%= p.job_title || '' %>">
+          </div>
+          <div class="field">
+            <label>Annual Income Range</label>
+            <select name="annual_income">
+              <option value="">-- Select --</option>
+              <option value="<50k" <%= p.annual_income==='<50k' ? 'selected' : '' %>>Less than $50,000</option>
+              <option value="50k-100k" <%= p.annual_income==='50k-100k' ? 'selected' : '' %>>$50,000 - $100,000</option>
+              <option value="100k-250k" <%= p.annual_income==='100k-250k' ? 'selected' : '' %>>$100,000 - $250,000</option>
+              <option value="250k-500k" <%= p.annual_income==='250k-500k' ? 'selected' : '' %>>$250,000 - $500,000</option>
+              <option value="500k-1M" <%= p.annual_income==='500k-1M' ? 'selected' : '' %>>$500,000 - $1,000,000</option>
+              <option value=">1M" <%= p.annual_income==='>1M' ? 'selected' : '' %>>More than $1,000,000</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Net Worth Range</label>
+            <select name="net_worth">
+              <option value="">-- Select --</option>
+              <option value="<100k" <%= p.net_worth==='<100k' ? 'selected' : '' %>>Less than $100,000</option>
+              <option value="100k-500k" <%= p.net_worth==='100k-500k' ? 'selected' : '' %>>$100,000 - $500,000</option>
+              <option value="500k-1M" <%= p.net_worth==='500k-1M' ? 'selected' : '' %>>$500,000 - $1,000,000</option>
+              <option value="1M-5M" <%= p.net_worth==='1M-5M' ? 'selected' : '' %>>$1,000,000 - $5,000,000</option>
+              <option value=">5M" <%= p.net_worth==='>5M' ? 'selected' : '' %>>More than $5,000,000</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Investment Experience</label>
+            <select name="investment_experience">
+              <option value="">-- Select --</option>
+              <option value="none" <%= p.investment_experience==='none' ? 'selected' : '' %>>None</option>
+              <option value="limited" <%= p.investment_experience==='limited' ? 'selected' : '' %>>Limited</option>
+              <option value="moderate" <%= p.investment_experience==='moderate' ? 'selected' : '' %>>Moderate</option>
+              <option value="extensive" <%= p.investment_experience==='extensive' ? 'selected' : '' %>>Extensive</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Investment Objective</label>
+            <select name="investment_objective">
+              <option value="">-- Select --</option>
+              <option value="preservation" <%= p.investment_objective==='preservation' ? 'selected' : '' %>>Capital Preservation</option>
+              <option value="income" <%= p.investment_objective==='income' ? 'selected' : '' %>>Income</option>
+              <option value="growth" <%= p.investment_objective==='growth' ? 'selected' : '' %>>Growth</option>
+              <option value="growth_income" <%= p.investment_objective==='growth_income' ? 'selected' : '' %>>Growth &amp; Income</option>
+              <option value="speculation" <%= p.investment_objective==='speculation' ? 'selected' : '' %>>Speculation</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Risk Tolerance</label>
+            <select name="risk_tolerance">
+              <option value="">-- Select --</option>
+              <option value="conservative" <%= p.risk_tolerance==='conservative' ? 'selected' : '' %>>Conservative</option>
+              <option value="mod_conservative" <%= p.risk_tolerance==='mod_conservative' ? 'selected' : '' %>>Moderately Conservative</option>
+              <option value="moderate" <%= p.risk_tolerance==='moderate' ? 'selected' : '' %>>Moderate</option>
+              <option value="mod_aggressive" <%= p.risk_tolerance==='mod_aggressive' ? 'selected' : '' %>>Moderately Aggressive</option>
+              <option value="aggressive" <%= p.risk_tolerance==='aggressive' ? 'selected' : '' %>>Aggressive</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Communication Preference</label>
+            <select name="communication_pref">
+              <option value="">-- Select --</option>
+              <option value="email" <%= p.communication_pref==='email' ? 'selected' : '' %>>Email</option>
+              <option value="phone" <%= p.communication_pref==='phone' ? 'selected' : '' %>>Phone</option>
+              <option value="sms" <%= p.communication_pref==='sms' ? 'selected' : '' %>>Text / SMS</option>
+              <option value="mail" <%= p.communication_pref==='mail' ? 'selected' : '' %>>Mail</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Save profile</button>
+            <a class="btn btn-secondary" href="/dashboard">Cancel</a>
+          </div>
+        </form>
+      <% if (!profile) { %>
+        <div class="muted" style="margin-top:12px">No profile on file yet. Fill in your information above and click <strong>Save profile</strong>.</div>
+      <% } %>
+    </div>
+
+    <!-- Transactions history -->
+    <div class="card" style="margin-top:24px">
+      <h2>Recent transactions</h2>
+      <% if (pendingCount && pendingCount > 0) { %><div class="action-banner" style="margin-bottom:12px"><%= pendingCount %> transaction(s) pending. Cash balances will update after review.</div><% } %>
+      <% if (transactions && transactions.length > 0) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th><th>Description</th><th>Symbol</th><th class="num">Qty</th>
+            <th class="num">Price</th><th class="num">Amount</th><th>Status</th><th>Reference</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% transactions.forEach(function(tx){ %>
+          <tr>
+            <td class="muted"><%= tx.tdate %></td>
+            <td><%= tx.description %><% if (tx.status === 'pending') { %><span class="tx-pending">PENDING</span><% } %></td>
+            <td><strong><%= tx.symbol || '—' %></strong></td>
+            <td class="num"><%= tx.quantity != null ? tx.quantity : '—' %></td>
+            <td class="num"><%= tx.price != null ? h.money(tx.price) : '—' %></td>
+            <td class="num <%= tx.amount>=0?'pos':'neg' %>"><%= h.signedMoney(tx.amount) %></td>
+            <td><span class="role user"><%= tx.status %></span><% if (tx.status === 'pending') { %><span class="tx-pending">PENDING</span><% } %></td>
+            <td class="muted"><%= tx.reference_id || '—' %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <% } else { %>
+      <div class="empty">No transactions found. Complete your profile to get started.</div>
+      <% } %>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

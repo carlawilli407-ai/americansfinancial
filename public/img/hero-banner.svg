@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300" width="420" height="300" role="img" aria-label="Illustration of a financial dashboard showing account balances, portfolio performance, and market charts">
+  <rect x="2" y="2" width="416" height="296" rx="14" ry="14" fill="#ffffff" stroke="#e6e4e1" stroke-width="1"/>
+  <rect x="280" y="30" width="128" height="230" rx="22" ry="22" fill="#f5f3f0" stroke="#d9d8d5" stroke-width="1"/>
+  <text x="344" y="56" text-anchor="middle" font-family="Fidelity Sans, Arial, sans-serif" font-size="13" font-weight="600" fill="#0F5319">AFA</text>
+  <text x="344" y="74" text-anchor="middle" font-family="Fidelity Sans, Arial, sans-serif" font-size="10" fill="#666">Total</text>
+  <text x="344" y="92" text-anchor="middle" font-family="Fidelity Sans, Arial, sans-serif" font-size="12" font-weight="700" fill="#0F5319">$42,834.12</text>
+  <text x="344" y="110" text-anchor="middle" font-family="Fidelity Sans, Arial, sans-serif" font-size="10" fill="#666">Available to trade</text>
+  <rect x="292" y="124" width="104" height="8" rx="4" ry="4" fill="none" stroke="#368727" stroke-width="1.5"/>
+  <rect x="292" y="140" width="76" height="8" rx="4" ry="4" fill="none" stroke="#981077" stroke-width="1.5"/>
+  <rect x="292" y="156" width="92" height="8" rx="4" ry="4" fill="none" stroke="#0F5319" stroke-width="1.5"/>
+  <circle cx="300" cy="170" r="4" fill="#368727"/>
+  <rect x="292" y="182" width="104" height="8" rx="4" ry="4" fill="none" stroke="#368727" stroke-width="1.5"/>
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#368727"/>
+      <stop offset="100%" stop-color="#368727"/>
+    </linearGradient>
+  </defs>
+  <polyline points="20,210 50,180 80,195 110,165 140,185 170,155 200,170 230,140 260,155"
+            fill="none" stroke="#0F5319" stroke-width="2.5"/>
+  <polygon points="20,210 230,155 260,155 260,210" fill="url(#grad1)" opacity="0.12"/>
+  <circle cx="50" cy="180" r="3.5" fill="#368727"/>
+  <circle cx="110" cy="165" r="3.5" fill="#368727"/>
+  <circle cx="260" cy="155" r="3.5" fill="#368727"/>
+  <rect x="34" y="210" width="12" height="30" fill="#368727" rx="2"/>
+  <rect x="56" y="200" width="12" height="40" fill="#0F5319" rx="2"/>
+  <rect x="78" y="215" width="12" height="25" fill="#368727" rx="2"/>
+  <rect x="100" y="195" width="12" height="45" fill="#0F5319" rx="2"/>
+  <rect x="122" y="220" width="12" height="20" fill="#368727" rx="2"/>
+  <rect x="144" y="205" width="12" height="35" fill="#0F5319" rx="2"/>
+  <text x="30" y="205" font-family="Fidelity Sans, Arial, sans-serif" font-size="11" fill="#666">Portfolio</text>
+  <rect x="40" y="80" width="96" height="44" rx="10" ry="10" fill="#eaf5ee" stroke="#cfeddc" stroke-width="1"/>
+  <text x="88" y="98" text-anchor="middle" font-family="Fidelity Sans, Arial, sans-serif" font-size="12" font-weight="600" fill="#0F5319">Buying Power</text>
+  <text x="88" y="120" text-anchor="middle" font-family="Fidelity Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#0F5319">$6,250.00</text>
+  <rect x="170" y="80" width="96" height="44" rx="10" ry="10" fill="#fff6f0" stroke="#ffe4cc" stroke-width="1"/>
+  <text x="218" y="98" text-anchor="middle" font-family="Fidelity Sans, Arial, sans-serif" font-size="12" font-weight="600" fill="#0F5319">Day Change</text>
+  <text x="218" y="120" text-anchor="middle" font-family="Fidelity Sans, Arial, sans-serif" font-size="15" font-weight="700" fill="#368727">+$174.32</text>
+  <line x1="34" y1="240" x2="260" y2="240" stroke="#e6e4e1" stroke-width="1"/>
+  <line x1="34" y1="210" x2="260" y2="210" stroke="#e6e4e1" stroke-width="1" stroke-dasharray="2,2"/>
+  <line x1="34" y1="225" x2="260" y2="225" stroke="#e6e4e1" stroke-width="1" stroke-dasharray="2,2"/>
+  <text x="30" y="255" font-family="Fidelity Sans, Arial, sans-serif" font-size="11" fill="#999">Jan</text>
+  <text x="242" y="255" font-family="Fidelity Sans, Arial, sans-serif" font-size="11" fill="#999">Dec</text>
+</svg>

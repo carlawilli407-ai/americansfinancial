@@ -1,0 +1,44 @@
+<footer class="site-footer">
+  <div class="cols">
+    <div>
+      <h4>Investing</h4>
+      <a href="/dashboard">Trading</a><a href="/investing">Mutual Funds</a><a href="/investing">ETFs</a><a href="/investing">Stocks</a><a href="/investing">Options</a>
+    </div>
+    <div>
+      <h4>Retirement</h4>
+      <a href="/retirement">401(k) Rollovers</a><a href="/retirement">IRAs</a><a href="/retirement">Retirement Planning</a>
+    </div>
+    <div>
+      <h4>Wealth Management</h4>
+      <a href="/wealth">Financial Advisors</a><a href="/wealth">Financial Planning</a>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <a href="/legal">About American Financial Associates</a><br>
+      <span>DBA: AMERICAN FINANCE</span><br>
+      <span>HQ: 1700 Northampton Street, Suite A, Easton, PA 18042</span><br>
+      <a href="/legal">Careers</a><a href="/research">Newsroom</a><a href="/legal">Contact Us</a><a href="/guidance">Guidance</a>
+    </div>
+    <div>
+      <h4>Security &amp; Legal</h4>
+      <a href="/legal">Security</a><a href="/legal">Privacy</a><a href="/legal">Terms of Use</a><a href="/legal">Accessibility</a>
+    </div>
+  </div>
+  <div class="legal">
+    &copy; 2026 American Financial Associates. All rights reserved. Investing involves risk, including the possible loss of principal.
+  </div>
+</footer>
+<script>
+(function () {
+  var els = document.querySelectorAll('.reveal');
+  if (!els.length) return;
+  function show() { els.forEach(function (e) { e.classList.add('in-view'); }); }
+  if ('IntersectionObserver' in window) {
+    var o = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in-view'); o.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.04 });
+    els.forEach(function (e) { o.observe(e); });
+  } else { show(); }
+  setTimeout(show, 1600);
+})();
+</script>

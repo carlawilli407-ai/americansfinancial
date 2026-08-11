@@ -1,0 +1,26 @@
+<div class="topbar">
+  <a class="brand" href="/"><span class="mark"></span>American Financial Associates</a>
+  <div class="search"><input type="text" placeholder="Search or get a quote" aria-label="Search"></div>
+  <div class="util">
+    <% if (typeof user !== 'undefined' && user) { %>
+      <span class="who">Welcome, <%= user.full_name.split(' ')[0] %></span>
+      <span class="avatar" title="<%= user.full_name %>"><%= user.full_name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase() %></span>
+      <% if (user.role === 'admin') { %><a class="btn btn-secondary btn-sm" href="/admin">Admin</a><% } %>
+      <a class="btn btn-secondary btn-sm" href="/logout">Log Out</a>
+    <% } else { %>
+      <a class="btn btn-secondary btn-sm" href="/login">Log In</a>
+      <a class="btn btn-primary btn-sm" href="/signup">Open an account</a>
+    <% } %>
+  </div>
+</div>
+<% if (typeof user !== 'undefined' && user) { %>
+<div class="utilbar">
+  <a href="/dashboard">Accounts &amp; Trade</a>
+  <a href="/investing">Investing</a>
+  <a href="/retirement">Retirement</a>
+  <a href="/wealth">Wealth Management</a>
+  <a href="/research">News &amp; Research</a>
+  <a href="/planning">Planning</a>
+  <a href="/profile">Profile</a>
+</div>
+<% } %>

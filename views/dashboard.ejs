@@ -1,0 +1,793 @@
+<%- include('partials/head', {title:'Dashboard - American Financial Associates'}) %>
+<body class="dash" data-open-panel="<%= openPanel || '' %>">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="#home" class="active"><span class="ic">&#127968;</span>Home</a>
+        <a href="#portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="#trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="#watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="#chart"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="#research"><span class="ic">&#128269;</span>Research</a>
+        <a href="#planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="#activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="#alerts"><span class="ic">&#128276;</span>Alerts &amp; notifications</a>
+        <a href="#accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="#fixedincome"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="portfolio-strip reveal">
+        <div class="ps-main">
+          <div class="ps-lbl">Total account value</div>
+          <div class="ps-sub">As of latest market close</div>
+          <div class="ps-value"><%= h.money(totalValue) %></div>
+          <div class="ps-pills">
+            <span class="ps-pill <%= h.cls(totalDayChange) %>">&#9650; <%= h.signedMoney(totalDayChange) %> today</span>
+            <span class="ps-pill <%= h.cls(totalGainLoss) %>">&#9670; <%= h.signedMoney(totalGainLoss) %> (<%= h.pct(totalGainLossPct) %>)</span>
+          </div>
+        </div>
+        <div class="ps-stats">
+          <div class="ps-stat"><div class="v"><%= h.money(cashAvailable) %></div><div class="l">Cash available</div></div>
+          <div class="ps-stat"><div class="v"><%= h.money(buyingPower) %></div><div class="l">Buying power</div></div>
+          <div class="ps-stat"><div class="v"><%= accounts.length %></div><div class="l">Accounts</div></div>
+        </div>
+      </div>
+
+      <!-- ============ HOME / SUMMARY ============ -->
+      <section id="home" class="sec reveal">
+        <div class="page-head">
+          <div>
+            <h1>Welcome back, <%= user.full_name.split(' ')[0] %></h1>
+            <div class="muted">Portfolio summary &middot; Last updated just now</div>
+          </div>
+          <a class="btn btn-secondary btn-sm" href="#activity">View statements</a>
+        </div>
+
+        <div class="quick">
+          <button type="button" class="btn btn-primary" data-panel="trade">Trade</button>
+          <button type="button" class="btn btn-secondary" data-panel="transfer">Transfer</button>
+          <button type="button" class="btn btn-secondary" data-panel="deposit">Deposit</button>
+          <button type="button" class="btn btn-secondary" data-panel="paybills">Pay bills</button>
+          <button type="button" class="btn btn-secondary" data-panel="movemoney">Move money</button>
+          <button type="button" class="btn btn-secondary" data-panel="history">History<% if (pendingCount && pendingCount > 0) { %> <span class="badge" style="background:#fff3cd;color:#855b00;border:1px solid #ffdd57;font-size:11px"><%= pendingCount %> pending</span><% } %></button>
+        </div>
+
+        <div class="card">
+          <h2>Account activity</h2>
+          <table>
+            <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th>Type</th></tr></thead>
+            <tbody>
+              <% activities.slice(0,5).forEach(function(a){ %>
+              <tr>
+                <td class="muted"><%= a.adate %></td>
+                <td><%= a.description %></td>
+                <td class="num <%= a.amount>=0?'pos':'neg' %>"><%= a.amount==null?'':h.signedMoney(a.amount) %></td>
+                <td><span class="role user"><%= a.type %></span></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ PORTFOLIO ============ -->
+      <section id="portfolio" class="sec reveal">
+        <h2 class="sec-h">Portfolio</h2>
+        <div class="sec-sub">Holdings, performance, and allocation across all your accounts.</div>
+        <div class="card">
+          <h2>Positions &mdash; holdings, cost basis &amp; market value</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Symbol</th><th>Name</th><th>Account</th>
+                <th class="num">Quantity</th><th class="num">Price</th>
+                <th class="num">Market value</th><th class="num">Today</th>
+                <th class="num">Gain / loss</th><th class="num">Gain / loss %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% positions.forEach(function(p){ var day = p.marketValue * (({FXAIX:0.62,FSKAX:0.55,GOOGL:1.18,AAPL:-0.43,FZROX:0.41}[p.symbol]||0.3)/100); %>
+              <tr>
+                <td><strong><%= p.symbol %></strong></td>
+                <td><%= p.name %></td>
+                <td><%= p.account %></td>
+                <td class="num"><%= h.num(p.quantity) %></td>
+                <td class="num"><%= h.money(p.price) %></td>
+                <td class="num"><%= h.money(p.marketValue) %></td>
+                <td class="num <%= day>=0?'pos':'neg' %>"><%= h.signedMoney(day) %></td>
+                <td class="num <%= h.cls(p.gainLoss) %>"><%= h.signedMoney(p.gainLoss) %></td>
+                <td class="num <%= h.cls(p.gainLossPct) %>"><%= h.pct(p.gainLossPct) %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5">Total</td>
+                <td class="num"><%= h.money(totalValue) %></td>
+                <td class="num <%= h.cls(totalDayChange) %>"><%= h.signedMoney(totalDayChange) %></td>
+                <td class="num <%= h.cls(totalGainLoss) %>"><%= h.signedMoney(totalGainLoss) %></td>
+                <td class="num <%= h.cls(totalGainLoss) %>"><%= h.pct(totalGainLossPct) %></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Asset allocation</h2>
+            <div class="alloc">
+              <svg viewBox="0 0 120 120" class="donut" role="img" aria-label="Asset allocation">
+                <% var C = 2 * Math.PI * 45, off = 0; allocation.forEach(function(s){ var len = (s.pct/100)*C; %>
+                <circle cx="60" cy="60" r="45" fill="none" stroke="<%= s.color %>" stroke-width="16"
+                  stroke-dasharray="<%= len.toFixed(2) %> <%= (C-len).toFixed(2) %>" stroke-dashoffset="<%= (-off).toFixed(2) %>" transform="rotate(-90 60 60)"/>
+                <% off += len; }); %>
+              <text x="60" y="57" text-anchor="middle" class="donut-total"><%= h.money(totalValue) %></text>
+              <text x="60" y="71" text-anchor="middle" class="donut-sub">Total value</text>
+              </svg>
+              <ul class="alloc-legend">
+                <% allocation.forEach(function(s){ %>
+                <li><span class="dot" style="background:<%= s.color %>"></span><span class="al-cls"><%= s.cls %></span> <span class="muted"><%= s.pct.toFixed(2) %>%</span> <span class="al-val"><%= h.money(s.value) %></span></li>
+                <% }); %>
+              </ul>
+            </div>
+          </div>
+          <div class="card insights-half">
+            <h2>Dividends &amp; income</h2>
+            <div class="big-income"><%= h.money(dividendsIncome) %></div>
+            <div class="muted">trailing dividends credited to your accounts</div>
+            <h3 style="margin-top:18px">Account breakdown</h3>
+            <ul class="breakdown">
+              <% accountBreakdown.forEach(function(a){ %>
+              <li>
+                <div class="bd-row"><span class="bd-type"><%= a.type %></span><span class="muted"><%= a.number %></span><span class="bd-val"><%= h.money(a.value) %> &middot; <%= a.pct.toFixed(2) %>%</span></div>
+                <div class="bd-bar"><span style="width:<%= Math.max(2, a.pct).toFixed(1) %>%"></span></div>
+              </li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Portfolio performance &mdash; last 12 months</h2>
+          <svg viewBox="0 0 600 160" class="linechart" preserveAspectRatio="none" role="img" aria-label="12 month value trend">
+            <% var tv = valueTrend, mx = 0, mn = 1e18; tv.forEach(function(v){ if(v.value>mx)mx=v.value; if(v.value<mn)mn=v.value; });
+               var W = 600, H = 130, pad = 14;
+               var pts = tv.map(function(v,i){ var x = pad + i*(W-2*pad)/(tv.length-1); var y = H-pad - ((v.value-mn)/((mx-mn)||1))*(H-2*pad); return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+               var areaPts = pts + ' ' + (W-pad).toFixed(1) + ',' + (H-pad) + ' ' + pad + ',' + (H-pad); %>
+            <defs><linearGradient id="perfFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#368727" stop-opacity=".28"/><stop offset="100%" stop-color="#368727" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="<%= areaPts %>" fill="url(#perfFill)"/>
+            <polyline fill="none" stroke="#368727" stroke-width="2.5" points="<%= pts %>"/>
+            <% tv.forEach(function(v,i){ var x = pad + i*(W-2*pad)/(tv.length-1); var y = H-pad - ((v.value-mn)/((mx-mn)||1))*(H-2*pad); %>
+              <circle cx="<%= x.toFixed(1) %>" cy="<%= y.toFixed(1) %>" r="2.6" fill="#0F5319"/>
+            <% }); %>
+          </svg>
+          <div class="trend-labels"><% tv.forEach(function(v){ %><span><%= v.month %></span><% }); %></div>
+        </div>
+      </section>
+
+      <!-- ============ TRADING ============ -->
+      <section id="trading" class="sec reveal">
+        <h2 class="sec-h">Trading</h2>
+        <div class="sec-sub">Place trades and track open orders across every asset class.</div>
+        <div class="trading-grid">
+          <div class="card">
+            <h2>Order entry</h2>
+            <% if (orderPlaced) { %><div class="action-banner pos" style="margin-bottom:12px">Order placed — your order is queued. Manage it in Open orders below.</div><% } %>
+            <div class="quick-syms" style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap">
+              <span class="muted" style="font-size:12px">Quick pick:</span>
+              <% ['AAPL','MSFT','GOOGL','SPY','NVDA','QQQ'].forEach(function(s){ %>
+              <button type="button" class="qsym btn btn-secondary btn-sm" data-sym="<%= s %>"><%= s %></button>
+              <% }); %>
+            </div>
+            <form class="trade-ticket" method="post" action="/orders">
+              <div class="tt-row">
+                <label>Symbol</label>
+                <input id="tkSymbol" name="symbol" placeholder="e.g. AAPL" autocomplete="off" required>
+              </div>
+              <div class="tt-row tt-2">
+                <div><label>Side</label><select name="side"><option>BUY</option><option>SELL</option></select></div>
+                <div><label>Type</label><select name="type"><option>Market</option><option>Limit</option><option>Stop</option></select></div>
+              </div>
+              <div class="tt-row"><label>Quantity</label><input name="quantity" type="number" step="any" min="0" placeholder="0" required></div>
+              <div class="tt-row"><label>Limit price</label><input name="limit_price" type="number" step="any" min="0" placeholder="optional"></div>
+              <button class="btn btn-primary btn-block" type="submit">Place order</button>
+            </form>
+          </div>
+          <div class="card">
+            <h2>Open orders</h2>
+            <% if (openOrders.length === 0) { %><div class="empty">No open orders. Use the ticket to place a trade.</div><% } else { %>
+            <table>
+              <thead><tr><th>Symbol</th><th>Side</th><th>Type</th><th class="num">Qty</th><th class="num">Limit</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <% openOrders.forEach(function(o){ %>
+                <tr>
+                  <td><strong><%= o.symbol %></strong></td>
+                  <td class="<%= o.side==='BUY'?'pos':'neg' %>"><%= o.side %></td>
+                  <td><%= o.type %></td>
+                  <td class="num"><%= h.num(o.quantity) %></td>
+                  <td class="num"><%= o.limit_price?h.money(o.limit_price):'—' %></td>
+                  <td><span class="role pos"><%= o.status %></span></td>
+              <td><form method="post" action="/orders/<%= o.id %>/fill" style="display:inline"><button class="btn btn-secondary btn-sm" type="submit" style="<%= o.status==='Open'?'':'display:none' %>">Fill</button></form></td>
+                  <td>
+                    <form method="post" action="/orders/<%= o.id %>/cancel" style="display:inline">
+                      <button class="btn btn-secondary btn-sm" type="submit">Cancel</button>
+                    </form>
+                    <form method="post" action="/orders/<%= o.id %>/fill" style="display:inline">
+                      <button class="btn btn-primary btn-sm" type="submit">Fill</button>
+                    </form>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Tradeable instruments</h2>
+          <div class="tabs" data-tabs>
+            <button class="tab active" data-tab="tk-stocks">Stocks</button>
+            <button class="tab" data-tab="tk-etfs">ETFs</button>
+            <button class="tab" data-tab="tk-funds">Mutual funds</button>
+            <button class="tab" data-tab="tk-opts">Options</button>
+            <button class="tab" data-tab="tk-bonds">Bonds / CDs</button>
+            <button class="tab" data-tab="tk-crypto">Crypto where eligible</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" data-panel="tk-stocks">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs.Stocks.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-etfs">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs.ETFs.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-funds">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs['Mutual funds'].forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-opts">
+              <table><thead><tr><th>Contract</th><th>Name</th><th class="num">Premium</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs.Options.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-bonds">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Yield</th><th></th></tr></thead>
+              <tbody><% research.tabs.Bonds.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num"><%= q.yld %>%</td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-crypto">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% (watchlists.filter(function(w){return w.name==='Crypto';})[0]||{items:[]}).items.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Order history &amp; trade confirmations</h2>
+          <% if (orderHistory.length === 0) { %><div class="empty">No past orders yet.</div><% } else { %>
+          <table>
+            <thead><tr><th>Date</th><th>Symbol</th><th>Side</th><th>Type</th><th class="num">Qty</th><th>Status</th></tr></thead>
+            <tbody>
+              <% orderHistory.forEach(function(o){ %>
+              <tr>
+                <td class="muted"><%= o.created_at %></td>
+                <td><strong><%= o.symbol %></strong></td>
+                <td class="<%= o.side==='BUY'?'pos':'neg' %>"><%= o.side %></td>
+                <td><%= o.type %></td>
+                <td class="num"><%= h.num(o.quantity) %></td>
+                <td><span class="role <%= o.status==='Filled'?'admin':'user' %>"><%= o.status %></span></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+          <% } %>
+        </div>
+      </section>
+
+      <!-- ============ WATCHLISTS ============ -->
+      <section id="watchlists" class="sec reveal">
+        <h2 class="sec-h">Watchlists</h2>
+        <div class="sec-sub">Monitor symbols with real-time price movement.</div>
+        <div class="wl-controls">
+          <label><input type="checkbox" id="wlLive" checked> Real-time quotes</label>
+          <span class="muted">Columns:</span>
+          <span class="chips">
+            <span class="chip on">Symbol</span><span class="chip on">Last</span><span class="chip on">Change</span>
+            <span class="chip on">Change %</span><span class="chip on">Volume</span><span class="chip on">Bid</span><span class="chip on">Ask</span>
+          </span>
+        </div>
+
+        <form class="wl-new" method="post" action="/watchlists/new">
+          <input name="name" placeholder="New watchlist name" maxlength="60" required>
+          <button class="btn btn-secondary btn-sm" type="submit">Create list</button>
+        </form>
+
+        <% watchlists.forEach(function(wl){ %>
+        <div class="card">
+          <h2>
+            <%= wl.name %>
+            <span class="muted" style="font-weight:400;font-size:13px">— custom list</span>
+            <form method="post" action="/watchlists/<%= wl.id %>/delete" style="display:inline" onsubmit="return confirm('Delete this watchlist?');">
+              <button class="btn btn-secondary btn-sm wl-del" type="submit">Delete list</button>
+            </form>
+          </h2>
+          <form class="wl-add" method="post" action="/watchlists/<%= wl.id %>/add">
+            <input name="symbol" placeholder="Add symbol (e.g. AAPL)" maxlength="12" required>
+            <button class="btn btn-secondary btn-sm" type="submit">Add</button>
+          </form>
+          <% if (!wl.items.length) { %>
+            <div class="empty">No symbols yet. Add one above.</div>
+          <% } else { %>
+          <table class="wl-table">
+            <thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Change</th><th class="num">Change %</th><th class="num">Volume</th><th class="num">Bid</th><th class="num">Ask</th><th></th></tr></thead>
+            <tbody>
+              <% wl.items.forEach(function(q){ %>
+              <tr data-sym="<%= q.symbol %>">
+                <td><strong><%= q.symbol %></strong></td>
+                <td class="muted"><%= q.name %></td>
+                <td class="num lv-price" data-field="price"><%= h.money(q.price) %></td>
+                <td class="num lv-chg" data-field="change"><%= (q.change>=0?'+':'') + q.change.toFixed(2) %></td>
+                <td class="num lv-pct <%= q.changePct>=0?'pos':'neg' %>" data-field="changePct"><%= h.pct(q.changePct) %></td>
+                <td class="num"><%= h.num(q.volume) %></td>
+                <td class="num"><%= h.money(q.bid) %></td>
+                <td class="num"><%= h.money(q.ask) %></td>
+                <td>
+                  <button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button>
+                  <form method="post" action="/watchlists/<%= wl.id %>/remove" style="display:inline">
+                    <input type="hidden" name="symbol" value="<%= q.symbol %>">
+                    <button class="btn btn-secondary btn-sm wl-x" type="submit" title="Remove <%= q.symbol %>">&#215;</button>
+                  </form>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+          <% } %>
+        </div>
+        <% }); %>
+      </section>
+
+      <!-- ============ ADVANCED CHARTING ============ -->
+      <section id="chart" class="sec reveal">
+        <h2 class="sec-h">Advanced charting</h2>
+        <div class="card">
+          <div class="chart-toolbar">
+            <div class="tabs small" data-tabs>
+              <button class="tab active" data-tab="tf-1d">1D</button>
+              <button class="tab" data-tab="tf-1w">1W</button>
+              <button class="tab" data-tab="tf-1m">1M</button>
+              <button class="tab" data-tab="tf-3m">3M</button>
+              <button class="tab" data-tab="tf-6m">6M</button>
+              <button class="tab" data-tab="tf-1y">1Y</button>
+            </div>
+            <div class="chart-toggles">
+              <button class="ind on" data-ind="ma20">MA 20</button>
+              <button class="ind on" data-ind="ma50">MA 50</button>
+              <button class="ind" data-ind="vwap">VWAP</button>
+              <button class="ind" data-ind="bb">Bollinger</button>
+            </div>
+            <div class="chart-tools">
+              <button class="tool">Trend</button><button class="tool">Fib</button><button class="tool">Note</button>
+              <select id="cmpSel"><option value="">Compare…</option><option>AAPL</option><option>SPY</option><option>QQQ</option></select>
+              <a class="btn btn-primary btn-sm" href="#trading">Trade from chart</a>
+            </div>
+          </div>
+          <div id="candleChart" class="candle-chart"></div>
+          <div class="muted" style="font-size:12px;margin-top:8px">Past performance is not indicative of future results. Chart indicators are shown for analysis only.</div>
+        </div>
+      </section>
+
+      <!-- ============ RESEARCH ============ -->
+      <section id="research" class="sec reveal">
+        <h2 class="sec-h">Research</h2>
+        <div class="sec-sub">Quotes, analyst views, and the latest market news.</div>
+        <div class="card">
+          <div class="tabs" data-tabs>
+            <button class="tab active" data-tab="rs-stocks">Stocks</button>
+            <button class="tab" data-tab="rs-etfs">ETFs</button>
+            <button class="tab" data-tab="rs-funds">Mutual funds</button>
+            <button class="tab" data-tab="rs-opts">Options</button>
+            <button class="tab" data-tab="rs-bonds">Bonds</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" data-panel="rs-stocks">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Chg %</th><th>Analyst</th><th class="num">Target</th></tr></thead>
+              <tbody><% research.tabs.Stocks.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><%= ['Buy','Overweight','Hold'][q.symbol.length%3] %></td><td class="num"><%= h.money(q.price*1.1) %></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="rs-etfs">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Chg %</th><th>Analyst</th><th class="num">Target</th></tr></thead>
+              <tbody><% research.tabs.ETFs.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td>Buy</td><td class="num"><%= h.money(q.price*1.08) %></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="rs-funds">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Chg %</th></tr></thead>
+              <tbody><% research.tabs['Mutual funds'].forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="rs-opts">
+              <table><thead><tr><th>Contract</th><th>Name</th><th class="num">Premium</th><th class="num">Chg %</th></tr></thead>
+              <tbody><% research.tabs.Options.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="rs-bonds">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Yield</th></tr></thead>
+              <tbody><% research.tabs.Bonds.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num"><%= q.yld %>%</td></tr><% }); %></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Company financials &amp; analyst info</h2>
+            <ul class="fin-list">
+              <li><span>Market cap</span><strong>$2.8T</strong></li>
+              <li><span>P/E (ttm)</span><strong>31.4</strong></li>
+              <li><span>EPS</span><strong>7.18</strong></li>
+              <li><span>Dividend yield</span><strong>0.45%</strong></li>
+              <li><span>Analyst rating</span><strong>Overweight</strong></li>
+              <li><span>Price target</span><strong>$248.00</strong></li>
+            </ul>
+          </div>
+          <div class="card insights-half">
+            <h2>Research reports &amp; screeners</h2>
+            <ul class="doc-list">
+              <% research.screeners.forEach(function(s){ %>
+              <li><span class="doc-icon">&#128270;</span><span class="doc-main"><span class="doc-name"><%= s.name %></span><span class="doc-meta">Screener &middot; <%= s.matches %> matches</span></span><a class="btn btn-secondary btn-sm" href="#">Run</a></li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Market news</h2>
+          <ul class="news-list">
+            <% research.news.forEach(function(n){ %>
+            <li><span class="news-src"><%= n.src %></span><span class="news-t"><%= n.t %></span><span class="news-w muted"><%= n.when %></span></li>
+            <% }); %>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ PLANNING ============ -->
+      <section id="planning" class="sec reveal">
+        <h2 class="sec-h">Planning</h2>
+        <div class="sec-sub">Model your goals and project your retirement.</div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="lbl">Net worth</div><div class="big"><%= h.money(planning.netWorth) %></div></div>
+          <div class="kpi"><div class="lbl">Retirement (now)</div><div class="big"><%= h.money(planning.retirement.current) %></div><div class="sub muted"><%= planning.retirement.assume %></div></div>
+          <% planning.retirement.projection.forEach(function(p){ %>
+          <div class="kpi"><div class="lbl">In <%= p.years %> yrs</div><div class="big"><%= h.money(p.value) %></div></div>
+          <% }); %>
+        </div>
+
+        <div class="card">
+          <h2>Goals</h2>
+          <div class="goal-grid">
+            <% planning.goals.forEach(function(g){ var pct = Math.min(100, Math.round(g.current/g.target*100)); %>
+            <div class="goal">
+              <div class="goal-top"><span><%= g.name %></span><span class="muted">by <%= g.by %></span></div>
+              <div class="goal-bar"><span style="width:<%= pct %>%"></span></div>
+              <div class="goal-vals"><span class="goal-name"><%= g.name %></span><span class="goal-target"><%= h.money(g.current) %> / <%= h.money(g.target) %> (<%= pct %>%)</span></div>
+              <div class="goal-status <%= pct>=80?'ontrack':'behind' %>"><%= pct>=80?'On track':'Behind target' %></div>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Cash-flow information</h2>
+            <ul class="breakdown">
+              <% planning.cashFlow.forEach(function(c){ %>
+              <li><div class="bd-row"><span class="bd-type"><%= c.label %></span><span class="bd-val <%= c.kind %>"><%= h.signedMoney(c.value) %></span></div></li>
+              <% }); %>
+            </ul>
+          </div>
+          <div class="card insights-half">
+            <h2>Financial planning tools</h2>
+            <ul class="doc-list">
+              <% planning.tools.forEach(function(t){ %>
+              <li><span class="doc-icon">&#128202;</span><span class="doc-main"><span class="doc-name"><%= t %></span></span><a class="btn btn-secondary btn-sm" href="#">Open</a></li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ACTIVITY ============ -->
+      <section id="activity" class="sec reveal">
+        <h2 class="sec-h">Activity</h2>
+        <div class="sec-sub">Deposits, withdrawals, trades, and statements.</div>
+        <div class="kpi-grid">
+          <div class="kpi pos"><div class="lbl">Deposits</div><div class="big pos"><%= h.money(1500) %></div></div>
+          <div class="kpi neg"><div class="lbl">Withdrawals</div><div class="big neg"><%= h.money(0) %></div></div>
+          <div class="kpi"><div class="lbl">Trades</div><div class="big"><%= h.money(593.50) %></div></div>
+          <div class="kpi pos"><div class="lbl">Dividends</div><div class="big pos"><%= h.money(dividendsIncome) %></div></div>
+          <div class="kpi pos"><div class="lbl">Interest</div><div class="big pos"><%= h.money(12.40) %></div></div>
+          <div class="kpi"><div class="lbl">Transfers</div><div class="big"><%= h.money(600) %></div></div>
+        </div>
+        <div class="card">
+          <h2>Transactions</h2>
+          <% if (pendingCount && pendingCount > 0) { %>
+          <div class="tx-pending-banner" style="margin-bottom:12px;padding:8px 12px;background:#fff7e6;border:1px solid #fed7aa;border-radius:6px;font-size:13px">
+            &#9888; You have <strong><%= pendingCount %></strong> pending transaction(s) awaiting admin approval. Cash balances will update once approved.
+          </div>
+          <% } %>
+          <table>
+            <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th>Type</th></tr></thead>
+            <tbody>
+              <% activities.forEach(function(a){ %>
+              <tr>
+                <td class="muted"><%= a.adate %></td>
+                <td><%= a.description %></td>
+                <td class="num <%= a.amount>=0?'pos':'neg' %>"><%= a.amount==null?'':h.signedMoney(a.amount) %></td>
+                <td><span class="role user"><%= a.type %></span></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Statements</h2>
+            <ul class="doc-list">
+              <% documents.filter(function(d){ return d.type==='Statement' || d.type==='Report'; }).forEach(function(d){ %>
+              <li><span class="doc-icon">&#128196;</span><span class="doc-main"><span class="doc-name"><%= d.name %></span><span class="doc-meta"><%= d.type %> &middot; <%= d.date %></span></span><a class="btn btn-secondary btn-sm" href="#">View</a></li>
+              <% }); %>
+            </ul>
+          </div>
+          <div class="card insights-half">
+            <h2>Tax documents</h2>
+            <ul class="doc-list">
+              <% documents.filter(function(d){ return d.type==='Tax' || d.type==='Confirmation'; }).forEach(function(d){ %>
+              <li><span class="doc-icon">&#128196;</span><span class="doc-main"><span class="doc-name"><%= d.name %></span><span class="doc-meta"><%= d.type %> &middot; <%= d.date %></span></span><a class="btn btn-secondary btn-sm" href="#">View</a></li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ALERTS ============ -->
+      <section id="alerts" class="sec reveal">
+        <h2 class="sec-h">Alerts &amp; notifications</h2>
+        <div class="alerts-grid">
+          <div class="card">
+            <h2>Create an alert</h2>
+            <form class="alert-form" method="post" action="/alerts">
+              <div class="tt-row"><label>Type</label>
+                <select name="kind"><option>Price</option><option>Portfolio</option><option>Market</option></select>
+              </div>
+              <div class="tt-row"><label>Symbol</label><input name="symbol" placeholder="e.g. AAPL (optional)" class="form-input"></div>
+              <div class="tt-row"><label>Trigger</label><input name="trigger" placeholder="e.g. Above 180.00" required class="form-input"></div>
+              <button class="btn btn-primary btn-block" type="submit">Create alert</button>
+            </form>
+          </div>
+          <div class="card">
+            <h2>Your alerts</h2>
+            <% if (alerts.length === 0) { %><div class="empty">No alerts set. Price, portfolio and market alerts will appear here.</div><% } else { %>
+            <table>
+              <thead><tr><th>Type</th><th>Symbol</th><th>Trigger</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                <% alerts.forEach(function(a){ %>
+                <tr>
+                  <td><%= a.kind %></td>
+                  <td><%= a.symbol || '—' %></td>
+                  <td><%= a.trigger %></td>
+                  <td><span class="alert-status active"><span class="dot"></span>Active</span></td>
+                  <td>
+                    <form method="post" action="/alerts/<%= a.id %>/delete" style="display:inline" onsubmit="return confirm('Delete this alert?');">
+                      <button class="btn btn-secondary btn-sm" type="submit">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+            <% } %>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ACCOUNTS ============ -->
+      <section id="accounts" class="sec reveal">
+        <h2 class="sec-h">Accounts</h2>
+        <div class="sec-sub">Balances, performance, and transfers.</div>
+        <div class="grid">
+          <% accounts.forEach(function(a){ %>
+          <div class="acct">
+            <div class="type"><%= a.type %></div>
+            <div class="num"><%= a.number %></div>
+            <div class="val"><%= h.money(a._marketValue) %></div>
+            <div class="gl <%= h.cls(a._gainLoss) %>"><%= h.signedMoney(a._gainLoss) %> (<%= h.pct(a._gainLossPct) %>)</div>
+          </div>
+          <% }); %>
+        </div>
+        <div class="card">
+          <h2>Multiple-account overview</h2>
+          <table>
+            <thead><tr><th>Account</th><th>Number</th><th class="num">Value</th><th class="num">Day change</th><th class="num">Gain / loss</th></tr></thead>
+            <tbody>
+              <% accounts.forEach(function(a){ %>
+              <tr><td><%= a.type %></td><td class="muted"><%= a.number %></td><td class="num"><%= h.money(a._marketValue) %></td><td class="num <%= h.cls(a._dayChange) %>"><%= h.signedMoney(a._dayChange) %></td><td class="num <%= h.cls(a._gainLoss) %>"><%= h.signedMoney(a._gainLoss) %></td></tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="action-card<%= openPanel === 'transfer' ? ' open' : '' %>" id="action-transfer">
+          <div class="action-head" data-panel="transfer"><span class="action-title">Transfer between accounts</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (openPanel === 'transfer' && transferred) { %><div class="action-banner pos">Transfer completed — cash has been moved between your accounts.</div><% } %>
+            <% if (openPanel === 'transfer' && payError) { %><div class="action-banner neg">Transfer not completed — check that the accounts differ and that sufficient funds are available.</div><% } %>
+            <form class="alert-form" method="post" action="/transfer">
+              <div class="tt-row"><label>From</label><select name="from"><% accounts.forEach(function(a){ %><option value="<%= a.type %>"><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>To</label><select name="to"><% accounts.forEach(function(a){ %><option value="<%= a.type %>"><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
+              <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Schedule transfer</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="action-card<%= openPanel === 'deposit' ? ' open' : '' %>" id="action-deposit">
+          <div class="action-head" data-panel="deposit"><span class="action-title">Deposit money</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (openPanel === 'deposit' && deposited) { %><div class="action-banner">Deposit submitted — pending. Funds will be credited once reviewed.</div><% } %>
+            <% if (openPanel === 'deposit' && payError) { %><div class="action-banner neg">Deposit not completed — check the account and amount, then try again.</div><% } %>
+            <form class="alert-form" method="post" action="/deposit">
+              <div class="tt-row"><label>Deposit to</label><select name="account_id"><% accounts.forEach(function(a){ %><option value="<%= a.id %>" <%= a.id===defaultAccount.id?'selected':'' %>><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
+              <div class="tt-row"><label>Method</label><select name="method"><option>ACH (1-3 business days)</option><option>Check deposit</option><option>Wire transfer</option></select></div>
+              <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Deposit</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="action-card<%= openPanel === 'paybills' ? ' open' : '' %>" id="action-paybills">
+          <div class="action-head" data-panel="paybills"><span class="action-title">Pay bills</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (openPanel === 'paybills' && paid) { %><div class="action-banner">Payment submitted — pending. The payment will be processed once reviewed.</div><% } %>
+            <% if (openPanel === 'paybills' && payError) { %><div class="action-banner neg">Payment not completed — check that sufficient funds are available and try again.</div><% } %>
+            <form class="alert-form" method="post" action="/pay-bills">
+              <div class="tt-row"><label>Pay from</label><select name="account_id"><% accounts.forEach(function(a){ %><option value="<%= a.id %>" <%= a.id===defaultAccount.id?'selected':'' %>><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>Payee</label><input name="payee" type="text" placeholder="e.g. Electric Co." autocomplete="off" required></div>
+              <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
+              <div class="tt-row"><label>Payment date</label><input name="date" type="date"></div>
+              <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Schedule payment</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="action-card<%= openPanel === 'movemoney' ? ' open' : '' %>" id="action-movemoney">
+          <div class="action-head" data-panel="movemoney"><span class="action-title">Move money</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (openPanel === 'movemoney' && moved) { %><div class="action-banner">Transfer submitted — pending. The external transfer will be sent once reviewed.</div><% } %>
+            <% if (openPanel === 'movemoney' && payError) { %><div class="action-banner neg">Transfer not completed — check that sufficient funds are available and try again.</div><% } %>
+            <form class="alert-form" method="post" action="/move-money">
+              <div class="tt-row"><label>Move from</label><select name="account_id"><% accounts.forEach(function(a){ %><option value="<%= a.id %>" <%= a.id===defaultAccount.id?'selected':'' %>><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>Destination bank</label><input name="external_bank" type="text" placeholder="e.g. Chase ••1234" autocomplete="off" required></div>
+              <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
+              <div class="tt-row"><label>Transfer date</label><input name="date" type="date"></div>
+              <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Send money</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="action-card<%= openPanel === 'history' ? ' open' : '' %>" id="action-history">
+          <div class="action-head" data-panel="history"><span class="action-title">Transaction history</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (pendingCount && pendingCount > 0) { %><div class="action-banner" style="margin-bottom:12px">You have <%= pendingCount %> pending transaction(s). Cash balances will update once reviewed.</div><% } %>
+            <% if (transactions && transactions.length) { %>
+            <div class="table-wrap">
+              <table class="hp-tx-table">
+                <thead>
+                  <tr>
+                    <th>Date</th><th>Description</th><th>Account</th><th>Type</th>
+                    <th class="num">Amount</th><th class="num">Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% transactions.forEach(function(t){ %>
+                  <tr>
+                    <td class="muted"><%= t.tdate %></td>
+                    <td><%= t.description %><% if (t.status === 'pending') { %><span class="tx-pending">PENDING</span><% } %></td>
+                    <td><%= t.account_type || (t.account_id ? '#' + t.account_id : '') %></td>
+                    <td><span class="role user"><%= t.type %></span></td>
+                    <td class="num <%= (t.amount||0) >= 0 ? 'pos' : 'neg' %>"><%= t.amount != null ? h.signedMoney(t.amount) : '—' %></td>
+                    <td class="num"><%= t.balance_after != null ? h.money(t.balance_after) : '—' %></td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+            <% } else { %>
+            <div class="empty">No transactions yet. Your transaction history will appear here once you start trading or moving money.</div>
+            <% } %>
+          </div>
+        </div>
+      </section>
+      <section id="fixedincome" class="sec reveal">
+        <h2 class="sec-h">Fixed income</h2>
+        <div class="card">
+          <h2>Bonds &amp; CDs &mdash; search &amp; yields</h2>
+          <table>
+            <thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Yield</th><th>Maturity</th><th>Frequency</th></tr></thead>
+            <tbody>
+              <% fixedIncome.bonds.forEach(function(b){ %>
+              <tr><td><strong><%= b.symbol %></strong></td><td><%= b.name %></td><td class="num"><%= h.money(b.price) %></td><td class="num"><%= b.yld %>%</td><td><%= b.maturity %></td><td><%= b.freq %></td></tr>
+              <% }); %>
+              <% fixedIncome.cds.forEach(function(c){ %>
+              <tr><td><strong>CD</strong></td><td>Certificate of Deposit &mdash; <%= c.term %></td><td class="num">$<%= h.num(c.min) %></td><td class="num"><%= c.apy %>% APY</td><td><%= c.term %></td><td>Monthly</td></tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Cash-flow analysis &amp; bond ladder</h2>
+            <table>
+              <thead><tr><th>Maturity</th><th class="num">Amount</th><th class="num">Yield</th></tr></thead>
+              <tbody>
+                <% fixedIncome.ladder.forEach(function(l){ %>
+                <tr><td><%= l.year %></td><td class="num"><%= h.money(l.amount) %></td><td class="num"><%= l.yld %>%</td></tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <div class="card insights-half">
+            <h2>Yield / maturity snapshot</h2>
+            <ul class="breakdown">
+              <% fixedIncome.bonds.map(function(b){ return {t:b.symbol, v:b.yld}; }).forEach(function(y){ %>
+              <li><div class="bd-row"><span class="bd-type"><%= y.t %></span><span class="bd-val"><%= y.v %>%</span></div><div class="bd-bar"><span style="width:<%= Math.max(4, y.v*18).toFixed(1) %>%"></span></div></li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ WEB PERSONALIZATION ============ -->
+      <section id="personalization" class="sec reveal" style="display:none">
+        <h2 class="sec-h">Web personalization</h2>
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Saved views &amp; widgets</h2>
+            <div class="muted" style="margin-bottom:8px">Saved views</div>
+            <div class="chips"><% personalization.savedViews.forEach(function(v){ %><span class="chip on"><%= v %></span><% }); %></div>
+            <div class="muted" style="margin:14px 0 8px">Dashboard widgets</div>
+            <div class="chips"><% personalization.widgets.forEach(function(w){ %><span class="chip <%= w.on?'on':'off' %>"><%= w.name %></span><% }); %></div>
+          </div>
+          <div class="card insights-half">
+            <h2>Custom columns &amp; filters</h2>
+            <div class="muted" style="margin-bottom:8px">Watchlist columns</div>
+            <div class="chips"><% personalization.columns.forEach(function(c){ %><span class="chip on"><%= c %></span><% }); %></div>
+            <div class="muted" style="margin:14px 0 8px">Account filters</div>
+            <div class="chips"><% personalization.accountFilters.forEach(function(f){ %><span class="chip <%= f==='All accounts'?'on':'off' %>"><%= f %></span><% }); %></div>
+            <div class="muted" style="margin-top:14px">Custom charts &amp; dashboards persist to your profile.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>window.__DASH__ = <%- JSON.stringify(clientData) %>;</script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

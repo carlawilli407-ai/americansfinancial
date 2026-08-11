@@ -1,0 +1,59 @@
+<%- include('partials/head', {title:'Pending Transaction Review - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Pending Transaction Review</h1>
+      <div style="display:flex;gap:8px">
+        <a class="btn btn-secondary btn-sm" href="/admin/transactions">All users</a>
+        <a class="btn btn-secondary btn-sm" href="/admin">Admin console</a>
+      </div>
+    </div>
+
+    <% if (pending.length === 0) { %>
+      <div class="card">
+        <h2>No pending transactions</h2>
+        <p class="muted">All transactions are settled. New deposits, bill payments, and external transfers will appear here for review.</p>
+      </div>
+    <% } else { %>
+      <div class="card">
+        <h2>Awaiting approval (<%= pending.length %>)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Client</th><th>Account</th><th>Type</th><th>Description</th>
+              <th class="num">Amount</th><th>Balance</th><th>Reference</th><th>Admin notes</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% pending.forEach(function(tx){ %>
+            <tr>
+              <td class="muted"><%= tx.tdate %></td>
+              <td><strong><%= tx.full_name %></strong> <span class="muted">(<%= tx.username %>)</span></td>
+              <td><%= tx.account_type || '&mdash;' %></td>
+              <td><span class="role user"><%= tx.type %></span></td>
+              <td><%= tx.description %></td>
+              <td class="num <%= tx.amount >= 0 ? 'pos' : 'neg' %>"><%= h.signedMoney(tx.amount) %></td>
+              <td class="num"><%= tx.balance_after != null ? h.money(tx.balance_after) : '&mdash;' %></td>
+              <td class="muted"><%= tx.reference_id || '&mdash;' %></td>
+              <td class="muted"><%= tx.admin_notes || '<em>not yet reviewed</em>' %></td>
+              <td>
+                <form method="post" action="/admin/transactions/<%= tx.id %>/approve" style="display:inline-block;margin-bottom:4px">
+                  <input type="hidden" name="admin_notes" value="" placeholder="Optional notes" style="display:none">
+                  <button type="submit" class="btn btn-sm" onclick="return confirm('Approve transaction <%= tx.id %> for <%= tx.full_name %>?');" style="background:#e6f4ea;color:#0a7333;border:1px solid #7dc388;">Approve</button>
+                </form>
+                <form method="post" action="/admin/transactions/<%= tx.id %>/decline" style="display:inline-block;margin-top:4px">
+                  <input type="hidden" name="admin_notes" value="Declined by admin">
+                  <button type="submit" class="btn btn-sm" onclick="return confirm('Decline transaction <%= tx.id %> for <%= tx.full_name %>?');" style="background:#fdecea;color:#981077;border:1px solid #f5c2c0;">Decline</button>
+                </form>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

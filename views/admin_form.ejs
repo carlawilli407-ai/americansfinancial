@@ -1,0 +1,113 @@
+<%- include('partials/head', {title:(user ? 'Edit user' : 'Add user') + ' - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <h1><%= user ? 'Edit user: ' + user.username : 'Add a new user' %></h1>
+      <a class="btn btn-secondary btn-sm" href="/admin">Back to users</a>
+    </div>
+
+    <div class="form-card">
+      <% if (error) { %><div class="err" style="background:#fdecea;color:#981077;border:1px solid #f5c2c0;padding:10px 12px;border-radius:4px;font-size:13px;margin-bottom:16px"><%= error %></div><% } %>
+      <form method="post" action="<%= action %>">
+        <div class="field">
+          <label>Username</label>
+          <input name="username" value="<%= user ? user.username : '' %>" <%= user ? 'readonly' : '' %>>
+        </div>
+        <div class="field">
+          <label>Full name</label>
+          <input name="full_name" value="<%= user ? user.full_name : '' %>">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input name="email" type="email" value="<%= user ? user.email : '' %>">
+        </div>
+        <% if (!user) { %>
+        <div class="field">
+          <label>Initial password</label>
+          <input name="password" type="text" value="password">
+          <div class="muted" style="font-size:12px;margin-top:4px">A default brokerage + IRA portfolio is created automatically.</div>
+        </div>
+        <% } %>
+        <% if (!user) { %>
+        <div class="field">
+          <label>Initial deposit</label>
+          <input name="initial_deposit" type="number" step="0.01" min="0" value="0">
+          <div class="muted" style="font-size:12px;margin-top:4px">Starting cash for the Cash Management account (default is 3,200). A matching deposit transaction is recorded automatically.</div>
+        </div>
+
+        <div class="field">
+          <label>Custom transactions <span class="muted" style="font-weight:400">(optional)</span></label>
+          <div id="tx-rows" style="margin-bottom:10px"></div>
+          <button type="button" id="add-tx" class="btn btn-secondary btn-sm" style="margin-bottom:8px">+ Add transaction</button>
+          <div class="muted" style="font-size:12px">Extra transaction history (transfers, dividends, fees, etc.). Added on top of the sample activity.</div>
+        </div>
+
+        <template id="tx-template">
+          <div class="tx-row" style="display:grid;grid-template-columns:120px 1fr 110px 95px;gap:8px 10px;margin-bottom:8px;align-items:end">
+            <div style="display:flex;flex-direction:column">
+              <label>Type</label>
+              <select name="tx_type" style="height:36px;border:1px solid #d9d8d5;border-radius:4px;padding:0 10px;font-size:14px;font-family:inherit;background:#fff">
+                <option value="deposit">Deposit</option>
+                <option value="withdrawal">Withdrawal</option>
+                <option value="transfer">Transfer</option>
+                <option value="dividend">Dividend</option>
+                <option value="interest">Interest</option>
+                <option value="fee">Fee</option>
+                <option value="trade_buy">Buy</option>
+                <option value="trade_sell">Sell</option>
+              </select>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <label>Description</label>
+              <input type="text" name="tx_desc" placeholder="e.g. Wire deposit" style="height:36px;border:1px solid #d9d8d5;border-radius:4px;padding:0 10px;font-size:14px;font-family:inherit">
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <label>Amount</label>
+              <input type="number" step="0.01" name="tx_amount" placeholder="0.00" style="height:36px;border:1px solid #d9d8d5;border-radius:4px;padding:0 10px;font-size:14px;font-family:inherit">
+            </div>
+            <div style="display:flex;flex-direction:column;justify-content:flex-end">
+              <button type="button" class="tx-remove" style="padding:6px 10px;font-size:13px;background:#fdecea;color:#981077;border:1px solid #f5c2c0;border-radius:4px;cursor:pointer;font-weight:600">Remove</button>
+            </div>
+          </div>
+        </template>
+
+        <script>
+        (function(){
+          var tpl = document.getElementById('tx-template');
+          var rows = document.getElementById('tx-rows');
+          function addRow(){
+            var d = tpl.content.cloneNode(true);
+            var row = d.querySelector('.tx-row');
+            row.querySelector('.tx-remove').addEventListener('click', function(){ row.remove(); });
+            rows.appendChild(row);
+          }
+          document.getElementById('add-tx').addEventListener('click', addRow);
+          addRow(); // one empty row by default
+        })();
+        </script>
+        <% } %>
+        <div class="field">
+          <label>Role</label>
+          <select name="role">
+            <option value="user" <%= user && user.role==='user' ? 'selected' : '' %>>User</option>
+            <option value="admin" <%= user && user.role==='admin' ? 'selected' : '' %>>Admin</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select name="status">
+            <option value="active" <%= user && user.status==='active' ? 'selected' : '' %>>Active</option>
+            <option value="disabled" <%= user && user.status==='disabled' ? 'selected' : '' %>>Disabled</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit"><%= user ? 'Save changes' : 'Create user' %></button>
+          <a class="btn btn-secondary" href="/admin">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

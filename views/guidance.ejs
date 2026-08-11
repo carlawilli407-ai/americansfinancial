@@ -1,0 +1,74 @@
+<%- include('partials/head', {title: title || 'Guidance - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <span class="hp-badge"><span style="margin-right:6px;">&#10003;</span> Expert guidance included</span>
+      <h1>Guidance</h1>
+      <p class="sub">Find the right account and approach for your goals with personalized guidance from our team.</p>
+      <a class="btn btn-primary btn-sm" href="/login">Log In</a>
+    </div>
+
+    <!-- Hero -->
+    <section class="page-hero reveal">
+      <div class="ph-in">
+        <div class="ph-text">
+          <h1>Need help deciding?</h1>
+          <p class="sub">Not sure where to start? Our guidance center helps you explore account types, investment strategies, and financial planning approaches — with clear, jargon-free advice.</p>
+          <div class="quick">
+            <a class="btn btn-primary" href="/planning">Try a calculator</a>
+            <a class="btn ghost" href="/wealth">Talk to an advisor</a>
+          </div>
+        </div>
+        <div class="ph-img">
+          <img class="ph-hero-img" src="/static/img/icon-planning.svg" alt="Financial guidance and planning illustration">
+        </div>
+      </div>
+    </section>
+      <div class="acct">
+        <div class="type">Plan for retirement</div>
+        <div class="num" style="font-size:15px;font-weight:600">IRAs, 401(k) rollovers &amp; more</div>
+        <div class="gl muted" style="font-size:13px">Compare account types and build a long-term plan.</div>
+        <a class="btn btn-secondary btn-sm" style="margin-top:10px" href="<%= user ? '/dashboard' : '/login' %>">Explore retirement</a>
+      </div>
+      <div class="acct">
+        <div class="type">Start investing</div>
+        <div class="num" style="font-size:15px;font-weight:600">Brokerage &amp; trading</div>
+        <div class="gl muted" style="font-size:13px">Open an account and learn the basics of investing.</div>
+        <a class="btn btn-secondary btn-sm" style="margin-top:10px" href="<%= user ? '/dashboard' : '/login' %>">Explore investing</a>
+      </div>
+      <div class="acct">
+        <div class="type">Save for education</div>
+        <div class="num" style="font-size:15px;font-weight:600">529 &amp; custodial accounts</div>
+        <div class="gl muted" style="font-size:13px">Invest for a child's future education expenses.</div>
+        <a class="btn btn-secondary btn-sm" style="margin-top:10px" href="<%= user ? '/dashboard' : '/login' %>">Explore 529 plans</a>
+      </div>
+      <div class="acct">
+        <div class="type">Health savings</div>
+        <div class="num" style="font-size:15px;font-weight:600">HSA guidance</div>
+        <div class="gl muted" style="font-size:13px">Save, earn, and invest for health care with an HSA.</div>
+        <a class="btn btn-secondary btn-sm" style="margin-top:10px" href="<%= user ? '/dashboard' : '/login' %>">Explore HSAs</a>
+      </div>
+      <div class="acct">
+        <div class="type">Talk to an advisor</div>
+        <div class="num" style="font-size:15px;font-weight:600">Wealth management</div>
+        <div class="gl muted" style="font-size:13px">Work with a financial professional on a custom plan.</div>
+        <a class="btn btn-secondary btn-sm" style="margin-top:10px" href="<%= user ? '/dashboard' : '/login' %>">Find an advisor</a>
+      </div>
+      <div class="acct">
+        <div class="type">Stay secure</div>
+        <div class="num" style="font-size:15px;font-weight:600">Security overview</div>
+        <div class="gl muted" style="font-size:13px">Learn how to protect your accounts and identity.</div>
+        <a class="btn btn-secondary btn-sm" style="margin-top:10px" href="<%= user ? '/dashboard' : '/login' %>">Security tips</a>
+      </div>
+    </div>
+
+    <h2 style="margin-top:28px">Already have an account?</h2>
+    <div class="quick">
+      <a class="btn btn-primary" href="/login">Log in to your dashboard</a>
+      <a class="btn btn-secondary" href="/">Back to home</a>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

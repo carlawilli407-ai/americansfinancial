@@ -1,0 +1,106 @@
+<%- include('partials/head', {title:'Edit transaction - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Edit transaction #<%= tx.id %></h1>
+      <div style="display:flex;gap:8px">
+        <a class="btn btn-secondary btn-sm" href="/admin/transactions">Back to manager</a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:24px">
+      <h2>Current values</h2>
+      <table>
+        <tbody>
+          <tr><td class="muted">Date</td><td><%= tx.tdate %></td></tr>
+          <tr><td class="muted">Type</td><td><%= tx.type %></td></tr>
+          <tr><td class="muted">Account ID</td><td><%= tx.account_id || '—' %></td></tr>
+          <tr><td class="muted">Symbol</td><td><strong><%= tx.symbol || '—' %></strong></td></tr>
+          <tr><td class="muted">Description</td><td><%= tx.description %></td></tr>
+          <tr><td class="muted">Quantity</td><td><%= tx.quantity != null ? tx.quantity : '—' %></td></tr>
+          <tr><td class="muted">Price</td><td><%= tx.price != null ? h.money(tx.price) : '—' %></td></tr>
+          <tr><td class="muted">Amount</td><td class="<%= tx.amount>=0?'pos':'neg' %>"><%= h.signedMoney(tx.amount) %></td></tr>
+          <tr><td class="muted">Balance after</td><td><%= tx.balance_after != null ? h.money(tx.balance_after) : '—' %></td></tr>
+          <tr><td class="muted">Status</td><td><%= tx.status %></td></tr>
+          <tr><td class="muted">Reference</td><td><%= tx.reference_id || '—' %></td></tr>
+          <tr><td class="muted">Created at</td><td class="muted"><%= tx.created_at %></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-card">
+      <h2>Modify transaction</h2>
+      <form method="post" action="/admin/transactions/<%= tx.id %>/edit">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" name="tdate" value="<%= tx.tdate %>">
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <select name="type">
+            <option value="deposit" <%= tx.type=='deposit'?'selected':'' %>>Deposit</option>
+            <option value="withdrawal" <%= tx.type=='withdrawal'?'selected':'' %>>Withdrawal</option>
+            <option value="transfer" <%= tx.type=='transfer'?'selected':'' %>>Transfer</option>
+            <option value="dividend" <%= tx.type=='dividend'?'selected':'' %>>Dividend</option>
+            <option value="interest" <%= tx.type=='interest'?'selected':'' %>>Interest</option>
+            <option value="fee" <%= tx.type=='fee'?'selected':'' %>>Fee</option>
+            <option value="trade_buy" <%= tx.type=='trade_buy'?'selected':'' %>>Buy</option>
+            <option value="trade_sell" <%= tx.type=='trade_sell'?'selected':'' %>>Sell</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Account</label>
+          <select name="account_id">
+            <option value="">No account (system)</option>
+            <% accounts.forEach(function(a){ %>
+            <option value="<%= a.id %>" <%= tx.account_id==a.id?'selected':'' %>><%= a.type %> (#<%= a.id %>)</option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="field">
+          <label>Symbol</label>
+          <input type="text" name="symbol" value="<%= tx.symbol || '' %>" placeholder="e.g. AAPL (optional)">
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <input type="text" name="description" value="<%= tx.description %>">
+        </div>
+        <div class="field">
+          <label>Quantity</label>
+          <input type="number" step="any" name="quantity" value="<%= tx.quantity != null ? tx.quantity : '' %>" placeholder="optional">
+        </div>
+        <div class="field">
+          <label>Price</label>
+          <input type="number" step="any" name="price" value="<%= tx.price != null ? tx.price : '' %>" placeholder="optional">
+        </div>
+        <div class="field">
+          <label>Amount</label>
+          <input type="number" step="any" name="amount" value="<%= tx.amount != null ? tx.amount : '' %>" required>
+        </div>
+        <div class="field">
+          <label>Balance after</label>
+          <input type="number" step="any" name="balance_after" value="<%= tx.balance_after != null ? tx.balance_after : '' %>" placeholder="optional">
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select name="status">
+            <option value="settled" <%= tx.status=='settled'?'selected':'' %>>Settled</option>
+            <option value="pending" <%= tx.status=='pending'?'selected':'' %>>Pending</option>
+            <option value="cancelled" <%= tx.status=='cancelled'?'selected':'' %>>Cancelled</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Reference ID</label>
+          <input type="text" name="reference_id" value="<%= tx.reference_id || '' %>" placeholder="optional">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save changes</button>
+          <a class="btn btn-secondary" href="/admin/transactions">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

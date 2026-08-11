@@ -1,0 +1,97 @@
+<%- include('partials/head', {title: 'News & Research - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <span class="hp-badge"><span style="margin-right:6px;">&#10003;</span> Daily market updates</span>
+      <h1>News &amp; research</h1>
+      <p class="sub">Stay informed with market commentary, stock research, and portfolio insights from our team of analysts.</p>
+    </div>
+
+    <!-- Hero -->
+    <section class="page-hero reveal">
+      <div class="ph-in">
+        <div class="ph-text">
+          <h1>Informed investing starts here</h1>
+          <p class="sub">Access our latest market commentary, analyst ratings, and portfolio strategy ideas to help you make confident investment decisions.</p>
+          <div class="quick">
+            <a class="btn btn-primary" href="/login">Read latest analysis</a>
+            <a class="btn ghost" href="/login">View market calendar</a>
+          </div>
+        </div>
+        <div class="ph-img">
+          <img class="ph-hero-img" src="/static/img/hero-illustration.svg" alt="Market news and research illustration">
+        </div>
+      </div>
+    </section>
+
+    <!-- Market summary -->
+    <section class="reveal">
+      <h2>Today's market snapshot</h2>
+      <p class="sub">Key market movements and economic indicators as of the latest close.</p>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="lbl">S&amp;P 500</div>
+          <div class="big">5,438.12</div>
+          <div class="sub pos">+$22.31 (+0.41%)</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Nasdaq</div>
+          <div class="big">17,862.34</div>
+          <div class="sub pos">+$112.45 (+0.63%)</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">Dow Jones</div>
+          <div class="big">39,210.55</div>
+          <div class="sub pos">+$86.22 (+0.22%)</div>
+        </div>
+        <div class="kpi">
+          <div class="lbl">10-Yr Yield</div>
+          <div class="big">4.18%</div>
+          <div class="sub neg">-0.03%</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Research tools highlights -->
+    <section class="reveal" style="padding-top:0">
+      <h2>Research tools</h2>
+      <p class="sub" style="margin-bottom:30px">From screening to analysis, our tools help you find and evaluate investments.</p>
+      <div class="hp-highlight-grid">
+        <div class="hp-highlight">
+          <svg class="hp-hl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12V6a2 2 0 0 1 2-2h8l4 4v8"/><path d="M16 2h6v6l-4 4-6 6-6-6 4-4z"/></svg>
+          <h3>Stock screener</h3>
+          <p>Filter stocks by market cap, sector, valuation, and performance metrics.</p>
+        </div>
+        <div class="hp-highlight">
+          <svg class="hp-hl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="14" y1="2" x2="20" y2="8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+          <h3>Fund research</h3>
+          <p>Compare mutual funds and ETFs with detailed fact sheets and analyst reports.</p>
+        </div>
+        <div class="hp-highlight">
+          <svg class="hp-hl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.5 15.5 0 1 1 0 20 15.5 15.5 0 0 1 0-20z"/></svg>
+          <h3>Analyst ratings</h3>
+          <p>Access ratings from top analysts with detailed buy/sell recommendations.</p>
+        </div>
+        <div class="hp-highlight">
+          <svg class="hp-hl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.59 11.41A2 2 0 0 1 4.24 10h8.52a2 2 0 0 1 1.98 1.64l-2.34 8.86a2 2 0 0 1-1.24 1.24l-8.86 2.34a2 2 0 0 1-2.47-.92z"/><path d="M18 8V2h-2v6h2z"/></svg>
+          <h3>Economic calendar</h3>
+          <p>Track upcoming earnings reports, Fed meetings, and economic data releases.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- News list -->
+    <section class="reveal">
+      <h2>Latest articles</h2>
+      <ul class="news-list">
+        <li><span class="news-icon">&#128214;</span><span class="news-item"><span class="news-src">Market Commentary</span> &middot; <span class="news-t">Sector rotation accelerates as yield curve normalizes</span> <span class="news-meta">Aug 7, 2026</span></span></li>
+        <li><span class="news-icon">&#128214;</span><span class="news-item"><span class="news-src">Portfolio Strategy</span> &middot; <span class="news-t">3 portfolio adjustments for the second half of 2026</span> <span class="news-meta">Jul 29, 2026</span></span></li>
+        <li><span class="news-icon">&#128214;</span><span class="news-item"><span class="news-src">Earnings</span> &middot; <span class="news-t">Big Tech earnings: What to watch in Q3</span> <span class="news-meta">Jul 22, 2026</span></span></li>
+        <li><span class="news-icon">&#128214;</span><span class="news-item"><span class="news-src">Investor Education</span> &middot; <span class="news-t">Understanding tax-loss harvesting in volatile markets</span> <span class="news-meta">Jul 15, 2026</span></span></li>
+      </ul>
+    </section>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

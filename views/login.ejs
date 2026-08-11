@@ -1,0 +1,27 @@
+<%- include('partials/head', {title:'Log In - American Financial Associates'}) %>
+<body class="login-page">
+  <%- include('partials/topbar') %>
+  <div class="login-wrap">
+    <div class="login-card">
+      <h1>Log in to americansfinancial.com</h1>
+      <div class="lead">Access your accounts, trade, and manage your plan.</div>
+      <% if (error) { %><div class="err"><%= error %></div><% } %>
+      <form method="post" action="/login">
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" name="username" autocomplete="username" autofocus>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Log In</button>
+      </form>
+      <div class="alt"><a href="/legal">Forgot username or password?</a></div>
+      <div class="alt">New to American Financial Associates? <a href="/signup">Open an account</a></div>
+      <div class="secure">&#128274; You are accessing a secure site. Your information is protected.</div>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

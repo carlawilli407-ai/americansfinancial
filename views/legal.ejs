@@ -1,0 +1,60 @@
+<%- include('partials/head', {title: title || 'Site information - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <div>
+        <h1>Site information</h1>
+        <div class="muted">Company, account, and legal information for American Financial Associates.</div>
+      </div>
+    </div>
+
+    <div class="legal-content" style="max-width:760px">
+      <section>
+        <h2>About American Financial Associates</h2>
+        <p>American Financial Associates (DBA: AMERICAN FINANCE) is a financial services company headquartered at 1700 Northampton Street, Suite A, Easton, PA 18042. We help individuals and families plan, invest, and build wealth with transparent pricing and access to dedicated financial professionals.</p>
+      </section>
+
+      <section>
+        <h2>Careers</h2>
+        <p>We're always looking for people passionate about helping others reach their financial goals. Current opportunities are posted on our careers page.</p>
+      </section>
+
+      <section>
+        <h2>Contact us</h2>
+        <p>For account access issues, reach our client support team through the <a href="/guidance">Guidance center</a> or by mail at the address above. This service is for existing clients.</p>
+      </section>
+
+      <section>
+        <h2>Security</h2>
+        <p>Your accounts are protected with bank-grade encryption and multi-factor access controls. See our guidance on keeping your accounts and identity secure.</p>
+      </section>
+
+      <section>
+        <h2>Privacy</h2>
+        <p>We collect only the information needed to serve you and operate your accounts. Your personal data is never sold. Review how we protect your information.</p>
+      </section>
+
+      <section>
+        <h2>Terms of use</h2>
+        <p>Use of americansfinancial.com and its tools is subject to our terms. By accessing this service you agree to be bound by those terms. Please review them before proceeding.</p>
+      </section>
+
+      <section>
+        <h2>Accessibility</h2>
+        <p>We strive to make this service usable by everyone. If you need assistance accessing a feature, contact our support team.</p>
+      </section>
+    </div>
+
+    <div class="quick" style="margin-top:28px">
+      <a class="btn" href="/">Back to home</a>
+      <% if (typeof user !== 'undefined' && user) { %>
+        <a class="btn btn-primary" href="/dashboard">Go to your dashboard</a>
+      <% } else { %>
+        <a class="btn btn-primary" href="/login">Log in to your account</a>
+      <% } %>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

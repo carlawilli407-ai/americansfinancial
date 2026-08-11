@@ -1,0 +1,56 @@
+<%- include('partials/head', {title:'Admin - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Admin console</h1>
+      <a class="btn btn-primary" href="/admin/new">+ Add user</a>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="v"><%= totalUsers %></div><div class="l">Total users</div></div>
+      <div class="stat"><div class="v"><%= h.money(totalAum) %></div><div class="l">Total assets under management</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Users</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th><th>Full name</th><th>Email</th>
+            <th>Role</th><th>Status</th><th>Accounts</th><th>AUM</th><th>Created</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(function(u){ %>
+          <tr>
+            <td><strong><%= u.username %></strong></td>
+            <td><%= u.full_name %></td>
+            <td><%= u.email %></td>
+            <td><span class="role <%= u.role %>"><%= u.role %></span></td>
+            <td><span class="role <%= u.status %>"><%= u.status %></span></td>
+            <td><%= u.accountCount %></td>
+            <td><%= h.money(u.aum) %></td>
+            <td class="muted"><%= u.created_at %></td>
+            <td>
+              <a class="btn btn-secondary btn-sm" href="/admin/<%= u.id %>/edit">Edit</a>
+              <a class="btn btn-secondary btn-sm" href="/admin/users/<%= u.id %>/transactions">Transactions</a>
+              <form method="post" action="/admin/<%= u.id %>/reset" style="display:inline" onsubmit="return confirm('Reset password to \'password\'?');">
+                <input type="hidden" name="password" value="password">
+                <button class="btn btn-secondary btn-sm" type="submit">Reset PW</button>
+              </form>
+              <% if (u.username !== 'admin') { %>
+              <form method="post" action="/admin/<%= u.id %>/delete" style="display:inline" onsubmit="return confirm('Delete user <%= u.username %>?');">
+                <button class="btn btn-sm" type="submit" style="background:#fdecea;color:#981077;border:1px solid #f5c2c0;">Delete</button>
+              </form>
+              <% } %>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>
