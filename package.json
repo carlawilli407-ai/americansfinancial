@@ -2,26 +2,20 @@
   "name": "fidelity-clone",
   "version": "1.0.0",
   "private": true,
-  "description": "Pixel-faithful Fidelity.com public clone with login, dashboard, and admin panel",
-  "main": "server.js",
+  "description": "Pixel-faithful Fidelity.com public clone + functional login, user dashboard, and admin user-management (Node/Express/EJS/SQLite/PostgreSQL).",
+  "type": "commonjs",
   "scripts": {
     "start": "node server.js",
+    "seed": "node lib/seed.js",
     "migrate": "node lib/migrate.js",
-    "seed-postgres": "node lib/seed-postgres.js",
-    "seed": "node lib/seed.js"
+    "seed-postgres": "node lib/seed-postgres.js"
   },
-  "keywords": ["fidelity", "clone", "portfolio", "investment", "dashboard"],
-  "author": "carlawilli407-ai",
-  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^9.3.0",
-    "ejs": "^3.1.9",
-    "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "pg": "^8.11.3"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.20"
+    "better-sqlite3": "^11.8.1",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "pg": "^8.12.0"
   }
 }
