@@ -2,17 +2,19 @@
   "name": "fidelity-clone",
   "version": "1.0.0",
   "private": true,
-  "description": "Pixel-faithful Fidelity.com public clone + functional login, user dashboard, and admin user-management (Node/Express/EJS/SQLite).",
+  "description": "Pixel-faithful Fidelity.com public clone + functional login, user dashboard, and admin user-management (Node/Express/EJS/SQLite/PostgreSQL).",
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "seed": "node lib/seed.js"
+    "seed": "node lib/seed.js",
+    "migrate": "node lib/migrate.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^11.8.1",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
-    "express-session": "^1.18.1"
+    "express-session": "^1.18.1",
+    "pg": "^8.12.0"
   }
 }
