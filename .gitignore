@@ -7,4 +7,4 @@ data/
 {ts}
 .coverage
 .DS_Store
-Thumbs.db
+Thumbs.db.session_secret
