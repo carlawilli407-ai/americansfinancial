@@ -269,10 +269,10 @@ app.get('/dashboard', auth.requireAuth, async (req, res) => {
 });
 
 // ---------- trading: place / cancel orders ----------
-app.post('/orders', auth.requireAuth, (req, res) => {
+app.post('/orders', auth.requireAuth, async (req, res) => {
   const { symbol, side, type, quantity, limit_price } = req.body || {};
   if (symbol && quantity && Number(quantity) > 0) {
-    db.createOrder(req.session.userId, {
+    await db.createOrder(req.session.userId, {
       symbol, side: side === 'SELL' ? 'SELL' : 'BUY',
       type: type || 'Market', quantity,
       limit_price: limit_price ? Number(limit_price) : null,
@@ -281,80 +281,80 @@ app.post('/orders', auth.requireAuth, (req, res) => {
   res.redirect('/dashboard?order=1#trading');
 });
 
-app.post('/orders/:id/cancel', auth.requireAuth, (req, res) => {
-  db.cancelOrder(req.session.userId, Number(req.params.id));
+app.post('/orders/:id/cancel', auth.requireAuth, async (req, res) => {
+  await db.cancelOrder(req.session.userId, Number(req.params.id));
   res.redirect('/dashboard#trading');
 });
 
 // ---------- alerts ----------
-app.post('/alerts', auth.requireAuth, (req, res) => {
+app.post('/alerts', auth.requireAuth, async (req, res) => {
   const { kind, symbol, trigger } = req.body || {};
   if (kind && trigger) {
-    db.createAlert(req.session.userId, { kind, symbol: symbol || null, trigger });
+    await db.createAlert(req.session.userId, { kind, symbol: symbol || null, trigger });
   }
   res.redirect('/dashboard#alerts');
 });
 
-app.post('/alerts/:id/delete', auth.requireAuth, (req, res) => {
-  db.deleteAlert(req.session.userId, Number(req.params.id));
+app.post('/alerts/:id/delete', auth.requireAuth, async (req, res) => {
+  await db.deleteAlert(req.session.userId, Number(req.params.id));
   res.redirect('/dashboard#alerts');
 });
 
 // ---------- order fill (simulated execution -> updates holdings) ----------
-app.post('/orders/:id/fill', auth.requireAuth, (req, res) => {
-  const o = db.getOrderForUser(req.session.userId, Number(req.params.id));
+app.post('/orders/:id/fill', auth.requireAuth, async (req, res) => {
+  const o = await db.getOrderForUser(req.session.userId, Number(req.params.id));
   if (o && o.status === 'Open') {
     const q = dash.QUOTES[o.symbol];
     const price = q ? q.price : (o.limit_price || 0);
-    db.fillOrder(req.session.userId, o.id, price);
+    await db.fillOrder(req.session.userId, o.id, price);
   }
   res.redirect('/dashboard?order=1#trading');
 });
 
 // ---------- account transfer (moves cash between accounts) ----------
-app.post('/transfer', auth.requireAuth, (req, res) => {
+app.post('/transfer', auth.requireAuth, async (req, res) => {
   const { from, to, amount } = req.body || {};
-  const ok = db.transferCash(req.session.userId, from, to, amount);
+  const ok = await db.transferCash(req.session.userId, from, to, amount);
   res.redirect(ok ? '/dashboard?open=transfer&transferred=1' : '/dashboard?open=transfer&error=1');
 });
 
 // ---------- money movement: deposits, bill pay, external transfers ----------
-app.post('/deposit', auth.requireAuth, (req, res) => {
+app.post('/deposit', auth.requireAuth, async (req, res) => {
   const { account_id, amount } = req.body || {};
-  const ok = db.depositCash(req.session.userId, Number(account_id), amount, 'deposit');
+  const ok = await db.depositCash(req.session.userId, Number(account_id), amount, 'deposit');
   res.redirect(ok ? '/dashboard?open=deposit&deposited=1' : '/dashboard?open=deposit&error=1');
 });
 
-app.post('/pay-bills', auth.requireAuth, (req, res) => {
+app.post('/pay-bills', auth.requireAuth, async (req, res) => {
   const { account_id, amount, payee } = req.body || {};
-  const ok = db.withdrawCash(req.session.userId, Number(account_id), amount, 'withdrawal', `Bill payment to ${payee || 'payee'}`);
+  const ok = await db.withdrawCash(req.session.userId, Number(account_id), amount, 'withdrawal', `Bill payment to ${payee || 'payee'}`);
   res.redirect(ok ? '/dashboard?open=paybills&paid=1' : '/dashboard?open=paybills&error=1');
 });
 
-app.post('/move-money', auth.requireAuth, (req, res) => {
+app.post('/move-money', auth.requireAuth, async (req, res) => {
   const { account_id, amount, external_bank } = req.body || {};
-  const ok = db.withdrawCash(req.session.userId, Number(account_id), amount, 'transfer', `Transfer to external bank ${external_bank || ''}`);
+  const ok = await db.withdrawCash(req.session.userId, Number(account_id), amount, 'transfer', `Transfer to external bank ${external_bank || ''}`);
   res.redirect(ok ? '/dashboard?open=movemoney&moved=1' : '/dashboard?open=movemoney&error=1');
 });
 
 // ---------- watchlists (per-user, editable) ----------
-app.post('/watchlists/new', auth.requireAuth, (req, res) => {
+app.post('/watchlists/new', auth.requireAuth, async (req, res) => {
   const name = ((req.body && req.body.name) || '').trim();
-  if (name) db.createWatchlist(req.session.userId, name, []);
+  if (name) await db.createWatchlist(req.session.userId, name, []);
   res.redirect('/dashboard#watchlists');
 });
-app.post('/watchlists/:id/add', auth.requireAuth, (req, res) => {
+app.post('/watchlists/:id/add', auth.requireAuth, async (req, res) => {
   const sym = ((req.body && req.body.symbol) || '').trim().toUpperCase();
-  if (sym) db.addSymbol(req.session.userId, Number(req.params.id), sym);
+  if (sym) await db.addSymbol(req.session.userId, Number(req.params.id), sym);
   res.redirect('/dashboard#watchlists');
 });
-app.post('/watchlists/:id/remove', auth.requireAuth, (req, res) => {
+app.post('/watchlists/:id/remove', auth.requireAuth, async (req, res) => {
   const sym = ((req.body && req.body.symbol) || '').trim().toUpperCase();
-  if (sym) db.removeSymbol(req.session.userId, Number(req.params.id), sym);
+  if (sym) await db.removeSymbol(req.session.userId, Number(req.params.id), sym);
   res.redirect('/dashboard#watchlists');
 });
-app.post('/watchlists/:id/delete', auth.requireAuth, (req, res) => {
-  db.deleteWatchlist(req.session.userId, Number(req.params.id));
+app.post('/watchlists/:id/delete', auth.requireAuth, async (req, res) => {
+  await db.deleteWatchlist(req.session.userId, Number(req.params.id));
   res.redirect('/dashboard#watchlists');
 });
 
@@ -374,15 +374,19 @@ function asTransactionRows(body) {
   return out;
 }
 
-app.get('/admin', auth.requireAdmin, (req, res) => {
-  const users = db.listUsers().map(u => {
-    const accounts = db.listAccounts(u.id);
+app.get('/admin', auth.requireAdmin, async (req, res) => {
+  const usersList = await db.listUsers();
+  const users = await Promise.all(usersList.map(async u => {
+    const accounts = await db.listAccounts(u.id);
     let aum = 0;
-    for (const a of accounts) for (const p of db.listPositions(a.id)) aum += p.quantity * p.price;
+    for (const a of accounts) {
+      const positions = await db.listPositions(a.id);
+      for (const p of positions) aum += p.quantity * p.price;
+    }
     let txCount = 0;
-    try { txCount = db.getTransactionCount(u.id); } catch (_) {}
+    try { txCount = await db.getTransactionCount(u.id); } catch (_) {}
     return { ...u, accountCount: accounts.length, aum, txCount };
-  });
+  }));
   const totalUsers = users.length;
   const totalAum = users.reduce((s, u) => s + u.aum, 0);
   res.render('admin', { users, totalUsers, totalAum });
@@ -392,86 +396,91 @@ app.get('/admin/new', auth.requireAdmin, (req, res) => {
   res.render('admin_form', { user: null, error: null, action: '/admin/new' });
 });
 
-app.post('/admin/new', auth.requireAdmin, (req, res) => {
+app.post('/admin/new', auth.requireAdmin, async (req, res) => {
   const { username, email, full_name, password, role, initial_deposit } = req.body || {};
   if (!username || !email || !password) {
     return res.render('admin_form', { user: null, error: 'Username, email and password are required.', action: '/admin/new' });
   }
-  if (db.getUserByUsernameOrEmail(username.trim()) || db.getUserByUsernameOrEmail(email.trim())) {
+  const check1 = await db.getUserByUsernameOrEmail(username.trim());
+  const check2 = await db.getUserByUsernameOrEmail(email.trim());
+  if (check1 || check2) {
     return res.render('admin_form', { user: null, error: 'Username or email already exists.', action: '/admin/new' });
   }
-  const id = db.createUser({
+  const id = await db.createUser({
     username: username.trim(), email: email.trim(), full_name: full_name.trim() || username.trim(),
     password, role: role === 'admin' ? 'admin' : 'user', status: 'active',
   });
   const cash = Number(initial_deposit) || 0;
-  // seed portfolio (initial_deposit overrides the default Cash Management cash balance)
-  db.seedDefaultPortfolio(id, cash > 0 ? cash : undefined);
-  db.seedUserExtras(id);
-  db.seedTransactions(id);
-  // optional initial deposit transaction + any admin-supplied custom transactions
-  if (cash > 0) db.seedInitialDeposit(id, cash);
-  db.addCustomTransactions(id, asTransactionRows(req.body));
+  await db.seedDefaultPortfolio(id, cash > 0 ? cash : undefined);
+  await db.seedUserExtras(id);
+  await db.seedTransactions(id);
+  if (cash > 0) await db.seedInitialDeposit(id, cash);
+  await db.addCustomTransactions(id, asTransactionRows(req.body));
   res.redirect('/admin');
 });
 
-app.get('/admin/:id/edit', auth.requireAdmin, (req, res) => {
-  const u = db.getUserById(Number(req.params.id));
+app.get('/admin/:id/edit', auth.requireAdmin, async (req, res) => {
+  const u = await db.getUserById(Number(req.params.id));
   if (!u) return res.redirect('/admin');
   res.render('admin_form', { user: u, error: null, action: `/admin/${u.id}/edit` });
 });
 
-app.post('/admin/:id/edit', auth.requireAdmin, (req, res) => {
-  const u = db.getUserById(Number(req.params.id));
+app.post('/admin/:id/edit', auth.requireAdmin, async (req, res) => {
+  const u = await db.getUserById(Number(req.params.id));
   if (!u) return res.redirect('/admin');
   const { username, email, full_name, role, status } = req.body || {};
-  db.updateUser(u.id, {
+  await db.updateUser(u.id, {
     username: username.trim(), email: email.trim(), full_name: full_name.trim() || u.full_name,
     role: role === 'admin' ? 'admin' : 'user', status: status === 'disabled' ? 'disabled' : 'active',
   });
   res.redirect('/admin');
 });
 
-app.post('/admin/:id/delete', auth.requireAdmin, (req, res) => {
-  const u = db.getUserById(Number(req.params.id));
-  if (u && u.username !== 'admin') db.deleteUser(u.id); // never delete the seed admin
+app.post('/admin/:id/delete', auth.requireAdmin, async (req, res) => {
+  const u = await db.getUserById(Number(req.params.id));
+  if (u && u.username !== 'admin') await db.deleteUser(u.id); // never delete the seed admin
   res.redirect('/admin');
 });
 
-app.post('/admin/:id/reset', auth.requireAdmin, (req, res) => {
-  const u = db.getUserById(Number(req.params.id));
-  if (u) db.setPassword(u.id, (req.body && req.body.password) || 'password');
+app.post('/admin/:id/reset', auth.requireAdmin, async (req, res) => {
+  const u = await db.getUserById(Number(req.params.id));
+  if (u) await db.setPassword(u.id, (req.body && req.body.password) || 'password');
   res.redirect('/admin');
 });
 
 // ---------- admin: cross-user transaction management ----------
 // Admin can view, modify, and delete ANY transaction across all user accounts.
-app.get('/admin/transactions', auth.requireAdmin, (req, res) => {
-  const users = db.listUsers().map(u => ({ ...u, accountCount: db.listAccounts(u.id).length, pendingCount: db.pendingTransactionCount(u.id) }));
+app.get('/admin/transactions', auth.requireAdmin, async (req, res) => {
+  const usersList = await db.listUsers();
+  const users = await Promise.all(usersList.map(async u => {
+    const accs = await db.listAccounts(u.id);
+    const pend = await db.pendingTransactionCount(u.id);
+    return { ...u, accountCount: accs.length, pendingCount: pend };
+  }));
   res.render('admin_transactions', { users, user: res.locals.user });
 });
 
-app.get('/admin/users/:userId/transactions', auth.requireAdmin, (req, res) => {
-  const target = db.getUserById(Number(req.params.userId));
+app.get('/admin/users/:userId/transactions', auth.requireAdmin, async (req, res) => {
+  const target = await db.getUserById(Number(req.params.userId));
   if (!target) return res.redirect('/admin/transactions');
-  const txs = db.listUserTransactions(target.id);
-  const accounts = db.listAccounts(target.id);
+  const txs = await db.listUserTransactions(target.id);
+  const accounts = await db.listAccounts(target.id);
   res.render('admin_transactions_user', { target, txs, accounts, user: res.locals.user });
 });
 
-app.get('/admin/transactions/:id/edit', auth.requireAdmin, (req, res) => {
-  const tx = db.getTransaction(Number(req.params.id));
+app.get('/admin/transactions/:id/edit', auth.requireAdmin, async (req, res) => {
+  const tx = await db.getTransaction(Number(req.params.id));
   if (!tx) return res.redirect('/admin/transactions');
-  const target = db.getUserById(tx.user_id);
-  const accounts = target ? db.listAccounts(target.id) : [];
+  const target = await db.getUserById(tx.user_id);
+  const accounts = target ? await db.listAccounts(target.id) : [];
   res.render('admin_tx_form', { tx, accounts, user: res.locals.user });
 });
 
-app.post('/admin/transactions/:id/edit', auth.requireAdmin, (req, res) => {
-  const tx = db.getTransaction(Number(req.params.id));
+app.post('/admin/transactions/:id/edit', auth.requireAdmin, async (req, res) => {
+  const tx = await db.getTransaction(Number(req.params.id));
   if (!tx) return res.redirect('/admin/transactions');
   const { tdate, type, symbol, description, quantity, price, amount, balance_after, status, reference_id } = req.body || {};
-  db.updateTransaction(tx.id, {
+  await db.updateTransaction(tx.id, {
     tdate, type: type || 'deposit', symbol: symbol || null,
     description, quantity: quantity || null, price: price || null,
     amount, balance_after: balance_after || null, status: status || 'settled',
@@ -480,29 +489,29 @@ app.post('/admin/transactions/:id/edit', auth.requireAdmin, (req, res) => {
   res.redirect(`/admin/users/${tx.user_id}/transactions`);
 });
 
-app.post('/admin/transactions/:id/delete', auth.requireAdmin, (req, res) => {
-  const tx = db.getTransaction(Number(req.params.id));
+app.post('/admin/transactions/:id/delete', auth.requireAdmin, async (req, res) => {
+  const tx = await db.getTransaction(Number(req.params.id));
   if (!tx) return res.redirect('/admin/transactions');
-  db.deleteTransaction(tx.id);
+  await db.deleteTransaction(tx.id);
   res.redirect(`/admin/users/${tx.user_id}/transactions`);
 });
 
 // ---------- admin: pending transaction review (approval workflow) ----------
-app.get('/admin/transactions/pending', auth.requireAdmin, (req, res) => {
-  const pending = db.listPendingTransactions();
+app.get('/admin/transactions/pending', auth.requireAdmin, async (req, res) => {
+  const pending = await db.listPendingTransactions();
   res.render('admin_pending', { pending, user: res.locals.user });
 });
 
-app.post('/admin/transactions/:id/approve', auth.requireAdmin, (req, res) => {
+app.post('/admin/transactions/:id/approve', auth.requireAdmin, async (req, res) => {
   const notes = (req.body && req.body.admin_notes) || '';
-  const ok = db.approveTransaction(Number(req.params.id), req.session.userId, notes);
+  const ok = await db.approveTransaction(Number(req.params.id), req.session.userId, notes);
   if (!ok) return res.redirect('/admin/transactions/pending');
   res.redirect('/admin/transactions/pending');
 });
 
-app.post('/admin/transactions/:id/decline', auth.requireAdmin, (req, res) => {
+app.post('/admin/transactions/:id/decline', auth.requireAdmin, async (req, res) => {
   const notes = (req.body && req.body.admin_notes) || '';
-  db.declineTransaction(Number(req.params.id), req.session.userId, notes || 'Declined by admin');
+  await db.declineTransaction(Number(req.params.id), req.session.userId, notes || 'Declined by admin');
   res.redirect('/admin/transactions/pending');
 });
 
