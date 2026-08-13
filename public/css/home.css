@@ -735,6 +735,12 @@
     padding: 20px;
     position: relative;
     box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hp-trending-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    border-color: #d6ecdc;
   }
   .t-ticker {
     font-size: 15px;
@@ -783,11 +789,21 @@
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hp-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    border-color: #d6ecdc;
   }
   .hp-card .ico img {
     width: 32px;
     height: 32px;
     margin-bottom: 16px;
+    transition: transform 0.3s ease;
+  }
+  .hp-card:hover .ico img {
+    transform: scale(1.15) rotate(5deg);
   }
   .hp-card h3 {
     font-size: 18px;
