@@ -36,6 +36,7 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(ROOT, 'views'));
 
+app.set('trust proxy', 1); // Trust first proxy for secure cookies
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
   store: sessionStore,
@@ -505,5 +506,9 @@ app.post('/admin/transactions/:id/decline', auth.requireAdmin, (req, res) => {
   res.redirect('/admin/transactions/pending');
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`Fidelity clone app listening on port ${PORT}`));
+module.exports = app;
+
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, '0.0.0.0', () => console.log(`Fidelity clone app listening on port ${PORT}`));
+}

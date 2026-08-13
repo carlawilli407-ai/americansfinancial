@@ -718,13 +718,98 @@
   .hp-idx-chg.pos { color: var(--pos); }
 .hp-idx-chg.neg { color: var(--neg); }
 .pulse-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: currentColor;
-  animation: pulse-dot-anim 2s ease-in-out infinite;
-  box-shadow: 0 0 8px currentColor;
+  display: none;
 }
-@keyframes pulse-dot-anim { 0%, 100% { opacity: .6; box-shadow: 0 0 4px currentColor; } 50% { opacity: 1; box-shadow: 0 0 12px currentColor; } }
+
+  /* ===== Trending Stocks Grid ===== */
+  .hp-trending-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .hp-trending-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+  .t-ticker {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  .t-price {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 8px 0;
+  }
+  .t-chg {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .t-chg.pos { color: var(--pos); }
+  .t-chg.neg { color: var(--neg); }
+  .t-spark {
+    width: 100%;
+    height: 30px;
+    margin-top: 12px;
+  }
+  .t-spark polyline {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .t-spark polyline.up {
+    stroke: var(--pos);
+  }
+  .t-spark polyline.down {
+    stroke: var(--neg);
+  }
+
+  /* ===== What we help you do ===== */
+  .hp-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 24px;
+  }
+  .hp-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .hp-card .ico img {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 16px;
+  }
+  .hp-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #1a1a1a;
+  }
+  .hp-card p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #555;
+    margin-bottom: 16px;
+  }
+  .hp-card a {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--green);
+    text-decoration: none;
+  }
+  .hp-card a:hover {
+    text-decoration: underline;
+  }
 
   /* ===== Feature highlights: gradient lift ===== */
   .hp-highlight-grid {
