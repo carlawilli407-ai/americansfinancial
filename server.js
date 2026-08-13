@@ -12,7 +12,7 @@ const auth = require('./lib/auth');
 const seed = require('./lib/seed');
 const dash = require('./lib/dashboard');
 
-const ROOT = __dirname;
+const ROOT = process.env.LAMBDA_TASK_ROOT ? process.cwd() : __dirname;
 const CLONE = path.join(ROOT, 'main');
 const PUBLIC = path.join(ROOT, 'public');
 
