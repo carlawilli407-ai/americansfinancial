@@ -132,7 +132,7 @@ app.get('/login', (req, res) => {
   res.render('login', { error: null, layout: false });
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const username = ((req.body && req.body.username) || '').trim();
   const key = username.toLowerCase();
   const locked = loginLock.check(key);
@@ -142,7 +142,7 @@ app.post('/login', (req, res) => {
       layout: false,
     });
   }
-  const u = username && db.getUserByUsernameOrEmail(username);
+  const u = username ? await db.getUserByUsernameOrEmail(username) : null;
   const ok = u && u.status === 'active' &&
     bcrypt.compareSync((req.body && req.body.password) || '', u.password_hash);
   if (!ok) {
@@ -243,16 +243,16 @@ app.post('/profile', auth.requireAuth, (req, res) => {
 });
 
 // ---------- user dashboard ----------
-app.get('/dashboard', auth.requireAuth, (req, res) => {
-  const data = dash.buildDashboard(req.session.userId);
+app.get('/dashboard', auth.requireAuth, async (req, res) => {
+  const data = await dash.buildDashboard(req.session.userId);
   // attach per-account cash balances for the in-dashboard money-action forms
-  data.accounts.forEach(function (a) {
-    const c = db.getCashPosition(a.id);
+  for (const a of data.accounts) {
+    const c = await db.getCashPosition(a.id);
     a.cash = c ? c.price : 0;
-  });
+  }
   const defaultAccount = data.accounts.find(function (a) { return a.type === 'Cash Management'; }) || data.accounts[0];
   // load transaction history for the History toggle panel
-  const transactions = db.listTransactions(req.session.userId);
+  const transactions = await db.listTransactions(req.session.userId);
   res.render('dashboard', {
     ...data,
     defaultAccount: defaultAccount,
