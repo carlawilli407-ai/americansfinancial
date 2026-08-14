@@ -59,6 +59,41 @@ app.use((req, res, next) => {
   next();
 });
 
+// --- CSRF: cookie-based double-submit (no extra dependencies) ---
+// A random token is issued as a `csrf_token` cookie on every response and
+// exposed to templates via res.locals.csrfToken. Every state-changing request
+// (POST/PUT/DELETE) must echo that token back as `req.body._csrf` (injected into
+// every form by the auto-injector in partials/head.ejs). Login/signup are
+// covered too, because the token is issued before any session exists.
+const CSRF_COOKIE = 'csrf_token';
+function readCookie(req, name) {
+  const c = req.headers.cookie;
+  if (!c) return null;
+  const m = c.split(';').map(s => s.trim()).find(s => s.indexOf(name + '=') === 0);
+  return m ? decodeURIComponent(m.slice(name.length + 1)) : null;
+}
+app.use((req, res, next) => {
+  if (req.path && req.path.startsWith('/static')) return next(); // don't tag asset requests
+  let token = readCookie(req, CSRF_COOKIE);
+  if (!token) token = crypto.randomBytes(32).toString('hex');
+  res.locals.csrfToken = token;
+  res.cookie(CSRF_COOKIE, token, {
+    httpOnly: false, sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 1000 * 60 * 60 * 8,
+  });
+  next();
+});
+app.use((req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
+  const cookieToken = readCookie(req, CSRF_COOKIE);
+  const bodyToken = req.body && req.body._csrf;
+  if (!cookieToken || !bodyToken || cookieToken !== bodyToken) {
+    return res.status(403).type('text/plain').send('Invalid or missing CSRF token');
+  }
+  next();
+});
+
 // formatting helpers available in all templates
 app.locals.h = {
   money(n) {
@@ -233,10 +268,12 @@ app.post('/profile', auth.requireAuth, (req, res) => {
     annual_income: req.body.annual_income,
     net_worth: req.body.net_worth,
     investment_experience: req.body.investment_experience,
+    investment_objective: req.body.investment_objective,
     risk_tolerance: req.body.risk_tolerance,
     citizenship: req.body.citizenship || 'US',
     tax_id_type: req.body.tax_id_type || 'SSN',
-    tax_id: req.body.tax_id
+    tax_id: req.body.tax_id,
+    communication_pref: req.body.communication_pref || null,
   };
   db.upsertProfile(req.session.userId, data);
   res.redirect('/profile');
@@ -262,6 +299,8 @@ app.get('/dashboard', auth.requireAuth, async (req, res) => {
     paid: req.query.paid === '1',
     moved: req.query.moved === '1',
     payError: req.query.error === '1',
+    externaltransferred: req.query.externaltransferred === '1',
+    externalError: req.query.externalerror === '1',
     orderPlaced: req.query.order === '1',
     transactions: transactions,
     pendingCount: db.pendingTransactionCount(req.session.userId),
@@ -337,6 +376,41 @@ app.post('/move-money', auth.requireAuth, async (req, res) => {
   res.redirect(ok ? '/dashboard?open=movemoney&moved=1' : '/dashboard?open=movemoney&error=1');
 });
 
+// ---------- external transfer (rich destination-bank details) ----------
+// Mirrors /move-money but captures and stores structured external-bank info:
+// bank logo, bank name, routing number, account holder, and the last 4 of
+// the destination account number. Only the last 4 digits are persisted (never
+// the full PAN) per least-privilege / PCI guidance; the full number entered by
+// the user is reduced to last4 server-side before storage.
+app.post('/external-transfer', auth.requireAuth, async (req, res) => {
+  const b = req.body || {};
+  const { account_id, amount, date, bank_logo, bank_name, routing, account_holder, account_number, reference } = b;
+  const accId = Number(account_id);
+  const amt = Number(amount);
+  // input validation — never persist the full external account number
+  const routingDigits = String(routing || '').replace(/\D/g, '');
+  const acctDigits = String(account_number || '').replace(/\D/g, '');
+  const last4 = acctDigits.slice(-4);
+  // destination routing must be exactly 9 digits; account number must carry >=4 digits
+  if (!accId || !(amt > 0) || routingDigits.length !== 9 || acctDigits.length < 4) {
+    return res.redirect('/dashboard?open=externaltransfer&externalerror=1');
+  }
+  const tdate = date || null;
+  const desc = reference ? `External transfer to ${bank_name || 'bank'} — ${reference}` : null;
+  const ok = await db.externalTransfer(req.session.userId, {
+    account_id: accId,
+    amount: amt,
+    tdate: tdate,
+    external_bank_logo: bank_logo || null,
+    external_bank_name: bank_name || null,
+    external_routing: routingDigits || null,
+    external_account_holder: account_holder || null,
+    external_account_last4: last4,
+    description: desc,
+  });
+  res.redirect(ok ? '/dashboard?open=externaltransfer&externaltransferred=1' : '/dashboard?open=externaltransfer&externalerror=1');
+});
+
 // ---------- watchlists (per-user, editable) ----------
 app.post('/watchlists/new', auth.requireAuth, async (req, res) => {
   const name = ((req.body && req.body.name) || '').trim();
@@ -368,9 +442,23 @@ function asTransactionRows(body) {
   const types = asArray(body.tx_type);
   const descs = asArray(body.tx_desc);
   const amts  = asArray(body.tx_amount);
-  const n = Math.max(types.length, descs.length, amts.length);
+  const dates = asArray(body.tx_date);
+  const accts = asArray(body.tx_account_id);
+  const syms  = asArray(body.tx_symbol);
+  const qtys  = asArray(body.tx_quantity);
+  const prics = asArray(body.tx_price);
+  const n = Math.max(types.length, descs.length, amts.length, dates.length, accts.length, syms.length, qtys.length, prics.length);
   const out = [];
-  for (let i = 0; i < n; i++) out.push({ type: types[i] || '', description: descs[i] || '', amount: amts[i] || '' });
+  for (let i = 0; i < n; i++) out.push({
+    type: types[i] || '',
+    description: descs[i] || '',
+    amount: amts[i] || '',
+    tdate: dates[i] || '',
+    account_id: accts[i] || '',
+    symbol: syms[i] || '',
+    quantity: qtys[i] || '',
+    price: prics[i] || '',
+  });
   return out;
 }
 
@@ -397,7 +485,7 @@ app.get('/admin/new', auth.requireAdmin, (req, res) => {
 });
 
 app.post('/admin/new', auth.requireAdmin, async (req, res) => {
-  const { username, email, full_name, password, role, initial_deposit } = req.body || {};
+  const { username, email, full_name, password, role, initial_deposit, account_date } = req.body || {};
   if (!username || !email || !password) {
     return res.render('admin_form', { user: null, error: 'Username, email and password are required.', action: '/admin/new' });
   }
@@ -411,7 +499,9 @@ app.post('/admin/new', auth.requireAdmin, async (req, res) => {
     password, role: role === 'admin' ? 'admin' : 'user', status: 'active',
   });
   const cash = Number(initial_deposit) || 0;
-  await db.seedDefaultPortfolio(id, cash > 0 ? cash : undefined);
+  const acctDate = (account_date || '').trim() || new Date().toISOString().slice(0, 10);
+  // Backdate account creation: pass acctDate through to createAccount.
+  await db.seedDefaultPortfolio(id, cash > 0 ? cash : undefined, acctDate);
   await db.seedUserExtras(id);
   await db.seedTransactions(id);
   if (cash > 0) await db.seedInitialDeposit(id, cash);
@@ -466,6 +556,40 @@ app.get('/admin/users/:userId/transactions', auth.requireAdmin, async (req, res)
   const txs = await db.listUserTransactions(target.id);
   const accounts = await db.listAccounts(target.id);
   res.render('admin_transactions_user', { target, txs, accounts, user: res.locals.user });
+});
+
+// ---------- admin: add a transaction to an EXISTING user's account ----------
+// Supports backdating (tdate) and choosing which account the transaction lands on.
+app.get('/admin/users/:userId/transactions/new', auth.requireAdmin, async (req, res) => {
+  const target = await db.getUserById(Number(req.params.userId));
+  if (!target) return res.redirect('/admin/transactions');
+  const accounts = await db.listAccounts(target.id);
+  res.render('admin_tx_new', { target, accounts, user: res.locals.user });
+});
+
+app.post('/admin/users/:userId/transactions/new', auth.requireAdmin, async (req, res) => {
+  const target = await db.getUserById(Number(req.params.userId));
+  if (!target) return res.redirect('/admin/transactions');
+  const a = req.body || {};
+  if (!a.description || !a.description.trim() || !Number(a.amount)) {
+    const accounts = await db.listAccounts(target.id);
+    return res.render('admin_tx_new', { target, accounts, user: res.locals.user, error: 'Description and a non-zero amount are required.' });
+  }
+  const tdate = (a.tdate || new Date().toISOString().slice(0, 10));
+  await db.createTransaction(target.id, {
+    account_id: a.account_id ? Number(a.account_id) : null,
+    tdate,
+    type: a.type || 'deposit',
+    symbol: a.symbol || null,
+    description: a.description.trim(),
+    quantity: a.quantity != null ? Number(a.quantity) : null,
+    price: a.price != null ? Number(a.price) : null,
+    amount: Number(a.amount),
+    balance_after: a.balance_after != null ? Number(a.balance_after) : null,
+    status: a.status || 'settled',
+    reference_id: a.reference_id || null,
+  });
+  res.redirect(`/admin/users/${target.id}/transactions`);
 });
 
 app.get('/admin/transactions/:id/edit', auth.requireAdmin, async (req, res) => {

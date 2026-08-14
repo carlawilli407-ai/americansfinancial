@@ -4,7 +4,30 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><%= typeof title !== 'undefined' ? title : 'American Financial Associates' %></title>
-<link rel="stylesheet" href="/static/css/app.css?v=7">
-<link rel="stylesheet" href="/static/css/enhancements.css?v=4">
+<!-- SRI integrity hashes were computed from the current CSS bytes (see PLAN.md:
+     regenerate `openssl dgst -sha384 -binary public/css/<file> | openssl base64 -A`
+     and bump the ?v= cache buster whenever either stylesheet changes). -->
+<link rel="stylesheet" href="/static/css/app.css?v=7" integrity="sha384-VbI3p4cP8gEqH0m2iXmDweofv6OZKjzdjwT1JdbPZNqWJVvFBR+fiDOYxwAF2+EJ" crossorigin="anonymous">
+<link rel="stylesheet" href="/static/css/enhancements.css?v=4" integrity="sha384-zBZWEOLwXoT6t95Fw6Z/no3GQW2SQ6FwTvZ4+OMiawWVFYbcRGvhKjvluvnyp/xc" crossorigin="anonymous">
 <script>document.documentElement.classList.add('js');</script>
+<!-- CSRF: cookie-based double-submit (no extra deps). The server issues a random
+     `csrf_token` cookie on every response and validates it against the `_csrf`
+     field on every POST. That field is injected into every form here, client-
+     side, so individual templates do not need per-form edits. -->
+<script>(function () {
+  var token = '';
+  try { var m = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/); token = m ? decodeURIComponent(m[1]) : ''; } catch (e) { token = ''; }
+  if (!token) return;
+  document.addEventListener('DOMContentLoaded', function () {
+    var forms = document.forms;
+    for (var i = 0; i < forms.length; i++) {
+      var f = forms[i];
+      if (f.querySelector && !f.querySelector('input[name="_csrf"]')) {
+        var input = document.createElement('input');
+        input.type = 'hidden'; input.name = '_csrf'; input.value = token;
+        f.appendChild(input);
+      }
+    }
+  });
+})();</script>
 </head>

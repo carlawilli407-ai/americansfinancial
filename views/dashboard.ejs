@@ -71,6 +71,7 @@
           <button type="button" class="btn btn-secondary" data-panel="deposit">Deposit</button>
           <button type="button" class="btn btn-secondary" data-panel="paybills">Pay bills</button>
           <button type="button" class="btn btn-secondary" data-panel="movemoney">Move money</button>
+          <button type="button" class="btn btn-secondary" data-panel="externaltransfer">External transfer</button>
           <button type="button" class="btn btn-secondary" data-panel="history">History<% if (pendingCount && pendingCount > 0) { %> <span class="badge" style="background:#fff3cd;color:#855b00;border:1px solid #ffdd57;font-size:11px"><%= pendingCount %> pending</span><% } %></button>
         </div>
 
@@ -686,6 +687,26 @@
               <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
               <div class="tt-row"><label>Transfer date</label><input name="date" type="date"></div>
               <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Send money</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="action-card<%= openPanel === 'externaltransfer' ? ' open' : '' %>" id="action-externaltransfer">
+          <div class="action-head" data-panel="externaltransfer"><span class="action-title">External transfer</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (openPanel === 'externaltransfer' && externaltransferred) { %><div class="action-banner pos">External transfer submitted — pending. Funds will be sent to your external bank once reviewed.</div><% } %>
+            <% if (openPanel === 'externaltransfer' && externalError) { %><div class="action-banner neg">External transfer not completed — verify the destination routing, account number, and that sufficient funds are available.</div><% } %>
+            <form class="alert-form" method="post" action="/external-transfer">
+              <div class="tt-row"><label>Transfer from</label><select name="account_id"><% accounts.forEach(function(a){ %><option value="<%= a.id %>" <%= a.id===defaultAccount.id?'selected':'' %>><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>Bank logo (URL)</label><input name="bank_logo" type="url" placeholder="https://example.com/logo.svg" autocomplete="off"></div>
+              <div class="tt-row"><label>Bank name</label><input name="bank_name" type="text" placeholder="e.g. First National Bank" autocomplete="off" required></div>
+              <div class="tt-row"><label>Routing number</label><input name="routing" type="text" inputmode="numeric" pattern="\d{9}" placeholder="9 digits" autocomplete="off" required></div>
+              <div class="tt-row"><label>Account holder</label><input name="account_holder" type="text" placeholder="Name on external account" autocomplete="off" required></div>
+              <div class="tt-row"><label>Destination account number</label><input name="account_number" type="text" inputmode="numeric" placeholder="External account number" autocomplete="off" required></div>
+              <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
+              <div class="tt-row"><label>Transfer date</label><input name="date" type="date"></div>
+              <div class="tt-row"><label>Reference / memo</label><input name="reference" type="text" placeholder="Optional reference" autocomplete="off"></div>
+              <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Schedule external transfer</button></div>
             </form>
           </div>
         </div>

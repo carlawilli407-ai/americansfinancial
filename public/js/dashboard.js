@@ -188,7 +188,7 @@
   // ---------- sidebar nav: open money-action card from hash ----------
   (function openPanelFromHash() {
     var hash = window.location.hash.substring(1);
-    var panelMap = { transfer: 'transfer', deposit: 'deposit', paybills: 'paybills', movemoney: 'movemoney' };
+    var panelMap = { transfer: 'transfer', deposit: 'deposit', paybills: 'paybills', movemoney: 'movemoney', externaltransfer: 'externaltransfer' };
     var panel = panelMap[hash];
     var openPanel = (document.body && document.body.dataset && document.body.dataset.openPanel) || '';
     if (panel && openPanel === panel) {

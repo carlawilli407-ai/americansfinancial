@@ -1,0 +1,95 @@
+<%- include('partials/head', {title:'Add transaction - American Financial Associates'}) %>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Add transaction &mdash; <%= target.full_name %></h1>
+      <div style="display:flex;gap:8px">
+        <a class="btn btn-secondary btn-sm" href="/admin/users/<%= target.id %>/transactions">Back to transactions</a>
+        <a class="btn btn-secondary btn-sm" href="/admin/transactions">All users</a>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="v"><%= target.username %></div><div class="l">User</div></div>
+      <div class="stat"><div class="v"><%= target.email %></div><div class="l">Email</div></div>
+      <div class="stat"><div class="v"><%= accounts.length %></div><div class="l">Accounts</div></div>
+    </div>
+
+    <div class="form-card">
+      <% if (error) { %><div class="err" style="background:#fdecea;color:#981077;border:1px solid #f5c2c0;padding:10px 12px;border-radius:4px;font-size:13px;margin-bottom:16px"><%= error %></div><% } %>
+      <form method="post" action="/admin/users/<%= target.id %>/transactions/new">
+        <h2>Transaction details</h2>
+        <div class="field">
+          <label>Account</label>
+          <select name="account_id">
+            <option value="">No account (system entry)</option>
+            <% accounts.forEach(function(a){ %>
+            <option value="<%= a.id %>"><%= a.type %> (#<%= a.id %>) <%= a.nickname ? '— '+a.nickname : '' %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="field">
+          <label>Date <span class="muted" style="font-weight:400">(backdate allowed)</span></label>
+          <input type="date" name="tdate" value="<%= new Date().toISOString().slice(0,10) %>">
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <select name="type">
+            <option value="deposit">Deposit</option>
+            <option value="withdrawal">Withdrawal</option>
+            <option value="transfer">Transfer</option>
+            <option value="dividend">Dividend</option>
+            <option value="interest">Interest</option>
+            <option value="fee">Fee</option>
+            <option value="trade_buy">Buy</option>
+            <option value="trade_sell">Sell</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Symbol</label>
+          <input type="text" name="symbol" placeholder="e.g. AAPL (optional)">
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <input type="text" name="description" required placeholder="e.g. ACH Deposit">
+        </div>
+        <div class="field">
+          <label>Quantity</label>
+          <input type="number" step="any" name="quantity" placeholder="optional (for trades)">
+        </div>
+        <div class="field">
+          <label>Price</label>
+          <input type="number" step="any" name="price" placeholder="optional">
+        </div>
+        <div class="field">
+          <label>Amount</label>
+          <input type="number" step="0.01" name="amount" required placeholder="0.00">
+          <div class="muted" style="font-size:12px">Use negative for debits (fees, withdrawals, sells).</div>
+        </div>
+        <div class="field">
+          <label>Balance after</label>
+          <input type="number" step="any" name="balance_after" placeholder="optional">
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select name="status">
+            <option value="settled">Settled</option>
+            <option value="pending">Pending approval</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Reference ID</label>
+          <input type="text" name="reference_id" placeholder="e.g. WIRE-12345 (optional)">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Add transaction</button>
+          <a class="btn btn-secondary" href="/admin/users/<%= target.id %>/transactions">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

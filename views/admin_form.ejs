@@ -37,6 +37,12 @@
         </div>
 
         <div class="field">
+          <label>Account creation date <span class="muted" style="font-weight:400">(backdate)</span></label>
+          <input name="account_date" type="date" value="<%= new Date().toISOString().slice(0,10) %>">
+          <div class="muted" style="font-size:12px;margin-top:4px">Backdate account creation. Defaults to today. Affects the <code>created_at</code> of all generated accounts (Brokerage, Roth IRA, Cash Management).</div>
+        </div>
+
+        <div class="field">
           <label>Custom transactions <span class="muted" style="font-weight:400">(optional)</span></label>
           <div id="tx-rows" style="margin-bottom:10px"></div>
           <button type="button" id="add-tx" class="btn btn-secondary btn-sm" style="margin-bottom:8px">+ Add transaction</button>
@@ -44,7 +50,11 @@
         </div>
 
         <template id="tx-template">
-          <div class="tx-row" style="display:grid;grid-template-columns:120px 1fr 110px 95px;gap:8px 10px;margin-bottom:8px;align-items:end">
+          <div class="tx-row" style="display:grid;grid-template-columns:110px 110px 80px 1fr 95px;gap:8px 10px;margin-bottom:8px;align-items:end">
+            <div style="display:flex;flex-direction:column">
+              <label>Date</label>
+              <input type="date" name="tx_date" style="height:36px;border:1px solid #d9d8d5;border-radius:4px;padding:0 10px;font-size:14px;font-family:inherit">
+            </div>
             <div style="display:flex;flex-direction:column">
               <label>Type</label>
               <select name="tx_type" style="height:36px;border:1px solid #d9d8d5;border-radius:4px;padding:0 10px;font-size:14px;font-family:inherit;background:#fff">
@@ -57,6 +67,10 @@
                 <option value="trade_buy">Buy</option>
                 <option value="trade_sell">Sell</option>
               </select>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <label>Symbol</label>
+              <input type="text" name="tx_symbol" placeholder="e.g. AAPL" style="height:36px;border:1px solid #d9d8d5;border-radius:4px;padding:0 10px;font-size:14px;font-family:inherit;text-transform:uppercase">
             </div>
             <div style="display:flex;flex-direction:column">
               <label>Description</label>
