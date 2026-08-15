@@ -1,6 +1,7 @@
 18
 node_modules/
 .env*
+!.env.example
 *.log
 data/
 *.db*

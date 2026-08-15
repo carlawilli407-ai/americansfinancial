@@ -16,9 +16,16 @@ const ROOT = process.env.LAMBDA_TASK_ROOT ? process.cwd() : __dirname;
 const CLONE = path.join(ROOT, 'main');
 const PUBLIC = path.join(ROOT, 'public');
 
-// --- session secret: env override, else a stable random secret persisted to disk ---
+// --- session secret: env override, else a stable random secret persisted to disk --
+// On Vercel/serverless (read-only filesystem), fall back to a derived secret.
 function getSessionSecret() {
   if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+  // Serverless / read-only FS: derive a stable secret so sessions survive cold starts
+  if (process.env.VERCEL || process.env.LAMBDA_TASK_ROOT) {
+    const derived = crypto.createHash('sha256').update(process.env.DATABASE_URL || process.env.VERCEL || 'afa-prod').digest('hex');
+    console.warn('[startup] SESSION_SECRET not set — using derived secret. Set SESSION_SECRET for production.');
+    return derived;
+  }
   const secFile = path.join(ROOT, '.session_secret');
   try {
     if (fs.existsSync(secFile)) return fs.readFileSync(secFile, 'utf8').trim();
@@ -26,11 +33,13 @@ function getSessionSecret() {
     fs.writeFileSync(secFile, s, { mode: 0o600 });
     return s;
   } catch (_) {
-    return crypto.randomBytes(32).toString('hex');
+    const s = crypto.randomBytes(32).toString('hex');
+    console.warn('[startup] Could not persist session secret to disk — using ephemeral secret.');
+    return s;
   }
 }
 
-seed(); // ensure admin + demo user exist
+seed().catch(err => console.error('[seed] Error:', err.message));
 
 const app = express();
 app.set('view engine', 'ejs');
