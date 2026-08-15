@@ -1,0 +1,16 @@
+<section id="transfer" class="sec reveal" style="display:block">
+<h2 class="sec-h">transfer</h2>
+<div class="action-card<%= openPanel === 'transfer' ? ' open' : '' %>" id="action-transfer">
+          <div class="action-head" data-panel="transfer"><span class="action-title">Transfer between accounts</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (openPanel === 'transfer' && transferred) { %><div class="action-banner pos">Transfer completed — cash has been moved between your accounts.</div><% } %>
+            <% if (openPanel === 'transfer' && payError) { %><div class="action-banner neg">Transfer not completed — check that the accounts differ and that sufficient funds are available.</div><% } %>
+            <form class="alert-form" method="post" action="/transfer">
+              <div class="tt-row"><label>From</label><select name="from"><% accounts.forEach(function(a){ %><option value="<%= a.type %>"><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>To</label><select name="to"><% accounts.forEach(function(a){ %><option value="<%= a.type %>"><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
+              <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Schedule transfer</button></div>
+            </form>
+          </div>
+        </div>
+</section>

@@ -1,0 +1,117 @@
+<%- include('partials/head', {title:'Accounts - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts & notifications</a>
+        <a href="/accounts" class="active"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <section class="sec reveal">
+        <div class="page-head">
+          <div>
+            <h2 class="sec-h">Accounts</h2>
+            <div class="sec-sub">Balances, performance, and transfers.</div>
+          </div>
+          <div class="quick">
+            <a class="btn btn-primary" href="/transfer">Transfer</a>
+            <a class="btn btn-secondary" href="/deposit">Deposit</a>
+            <a class="btn btn-secondary" href="/pay-bills">Pay bills</a>
+            <a class="btn btn-secondary" href="/move-money">Move money</a>
+            <a class="btn btn-secondary" href="/external-transfer">External transfer</a>
+          </div>
+        </div>
+
+        <div class="grid">
+          <% accounts.forEach(function(a){ %>
+          <div class="acct">
+            <div class="type"><%= a.type %></div>
+            <div class="num"><%= a.number %></div>
+            <div class="val"><%= h.money(a._marketValue) %></div>
+            <div class="gl <%= h.cls(a._gainLoss) %>"><%= h.signedMoney(a._gainLoss) %> (<%= h.pct(a._gainLossPct) %>)</div>
+          </div>
+          <% }); %>
+        </div>
+
+        <div class="card">
+          <h2>Multiple-account overview</h2>
+          <table>
+            <thead><tr><th>Account</th><th>Number</th><th class="num">Value</th><th class="num">Day change</th><th class="num">Gain / loss</th></tr></thead>
+            <tbody>
+              <% accounts.forEach(function(a){ %>
+              <tr><td><%= a.type %></td><td class="muted"><%= a.number %></td><td class="num"><%= h.money(a._marketValue) %></td><td class="num <%= h.cls(a._dayChange) %>"><%= h.signedMoney(a._dayChange) %></td><td class="num <%= h.cls(a._gainLoss) %>"><%= h.signedMoney(a._gainLoss) %></td></tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h2>Transaction history</h2>
+          <% if (pendingCount && pendingCount > 0) { %><div class="action-banner" style="margin-bottom:12px">You have <%= pendingCount %> pending transaction(s). Cash balances will update once reviewed.</div><% } %>
+          <% if (transactions && transactions.length) { %>
+          <div class="table-wrap">
+            <table class="hp-tx-table">
+              <thead>
+                <tr>
+                  <th>Date</th><th>Description</th><th>Account</th><th>Type</th>
+                  <th class="num">Amount</th><th class="num">Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% transactions.forEach(function(t){ %>
+                <tr>
+                  <td class="muted"><%= t.tdate %></td>
+                  <td><%= t.description %><% if (t.status === 'pending') { %><span class="tx-pending">PENDING</span><% } %></td>
+                  <td><%= t.account_type || (t.account_id ? '#' + t.account_id : '') %></td>
+                  <td><span class="role user"><%= t.type %></span></td>
+                  <td class="num <%= (t.amount||0) >= 0 ? 'pos' : 'neg' %>"><%= t.amount != null ? h.signedMoney(t.amount) : '—' %></td>
+                  <td class="num"><%= t.balance_after != null ? h.money(t.balance_after) : '—' %></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <% } else { %>
+          <div class="empty">No transactions yet. Your transaction history will appear here once you start trading or moving money.</div>
+          <% } %>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>window.__DASH__ = <%- JSON.stringify(clientData) %>;</script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
-/* ===== Fidelity-style design system (pixel-faithful palette) ===== */
+/* ===== Financial design system (professional palette) ===== */
 /*
- * NOTE: "Fidelity Sans" web font files are not bundled in this deployment
+ * NOTE: "Inter" web font files are not bundled in this deployment
  * (the upstream /assets path 404s), so we fall back to a curated system
  * font stack that renders crisp and professional on every platform.
  */
@@ -86,6 +86,72 @@ tfoot td{font-weight:700;background: #faf9f7;border-top:2px solid var(--line-2)}
 
 /* quick actions */
 .quick{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:30px}
+.quick .btn{transition:all .2s ease}
+.quick .btn-secondary:hover{background:var(--green);color:#fff;border-color:var(--green-dark)}
+
+/* ===== external transfer: bank selection grid ===== */
+.bank-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+  gap:12px;
+  margin-bottom:24px;
+}
+.bank-option{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding:14px 8px;
+  background:#fff;
+  border:1.5px solid var(--line-2);
+  border-radius:10px;
+  cursor:pointer;
+  transition:all .2s ease;
+  text-align:center;
+}
+.bank-option:hover{
+  border-color:var(--green);
+  transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(54,135,39,.08);
+}
+.bank-logo{
+  width:100px;
+  height:38px;
+  object-fit:contain;
+  flex-shrink:0;
+}
+.bank-name{
+  font-size:12px;
+  font-weight:600;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.bank-logo.other-icon{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:rgba(54,135,39,.08);
+  border:1.5px dashed var(--line-2);
+  color:var(--green-dark);
+  font-size:22px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  object-fit:unset;
+  flex-shrink:0;
+}
+.bank-option input[type="radio"]{
+  opacity:0;
+  position:absolute;
+}
+.bank-option.selected{
+  border-color:var(--green-dark);
+  background:#f0f7f1;
+  box-shadow:0 0 0 3px rgba(54,135,39,.15);
+}
 
 /* ===== login ===== */
 .login-page{background: #faf9f7;min-height:100vh;display:flex;flex-direction:column}

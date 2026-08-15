@@ -1,0 +1,36 @@
+<section id="home" class="sec reveal">
+        <div class="page-head">
+          <div>
+            <h1>Welcome back, <%= user.full_name.split(' ')[0] %></h1>
+            <div class="muted">Portfolio summary &middot; Last updated just now</div>
+          </div>
+          <a class="btn btn-secondary btn-sm" href="#activity">View statements</a>
+        </div>
+
+        <div class="quick">
+          <button type="button" class="btn btn-primary" data-panel="trade">Trade</button>
+          <button type="button" class="btn btn-secondary" data-panel="transfer">Transfer</button>
+          <button type="button" class="btn btn-secondary" data-panel="deposit">Deposit</button>
+          <button type="button" class="btn btn-secondary" data-panel="paybills">Pay bills</button>
+          <button type="button" class="btn btn-secondary" data-panel="movemoney">Move money</button>
+          <button type="button" class="btn btn-secondary" data-panel="externaltransfer">External transfer</button>
+          <button type="button" class="btn btn-secondary" data-panel="history">History<% if (pendingCount && pendingCount > 0) { %> <span class="badge" style="background:#fff3cd;color:#855b00;border:1px solid #ffdd57;font-size:11px"><%= pendingCount %> pending</span><% } %></button>
+        </div>
+
+        <div class="card">
+          <h2>Account activity</h2>
+          <table>
+            <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th>Type</th></tr></thead>
+            <tbody>
+              <% activities.slice(0,5).forEach(function(a){ %>
+              <tr>
+                <td class="muted"><%= a.adate %></td>
+                <td><%= a.description %></td>
+                <td class="num <%= a.amount>=0?'pos':'neg' %>"><%= a.amount==null?'':h.signedMoney(a.amount) %></td>
+                <td><span class="role user"><%= a.type %></span></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </section>

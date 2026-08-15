@@ -1,0 +1,38 @@
+<section id="fixedincome" class="sec reveal">
+        <h2 class="sec-h">Fixed income</h2>
+        <div class="card">
+          <h2>Bonds &amp; CDs &mdash; search &amp; yields</h2>
+          <table>
+            <thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Yield</th><th>Maturity</th><th>Frequency</th></tr></thead>
+            <tbody>
+              <% fixedIncome.bonds.forEach(function(b){ %>
+              <tr><td><strong><%= b.symbol %></strong></td><td><%= b.name %></td><td class="num"><%= h.money(b.price) %></td><td class="num"><%= b.yld %>%</td><td><%= b.maturity %></td><td><%= b.freq %></td></tr>
+              <% }); %>
+              <% fixedIncome.cds.forEach(function(c){ %>
+              <tr><td><strong>CD</strong></td><td>Certificate of Deposit &mdash; <%= c.term %></td><td class="num">$<%= h.num(c.min) %></td><td class="num"><%= c.apy %>% APY</td><td><%= c.term %></td><td>Monthly</td></tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Cash-flow analysis &amp; bond ladder</h2>
+            <table>
+              <thead><tr><th>Maturity</th><th class="num">Amount</th><th class="num">Yield</th></tr></thead>
+              <tbody>
+                <% fixedIncome.ladder.forEach(function(l){ %>
+                <tr><td><%= l.year %></td><td class="num"><%= h.money(l.amount) %></td><td class="num"><%= l.yld %>%</td></tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <div class="card insights-half">
+            <h2>Yield / maturity snapshot</h2>
+            <ul class="breakdown">
+              <% fixedIncome.bonds.map(function(b){ return {t:b.symbol, v:b.yld}; }).forEach(function(y){ %>
+              <li><div class="bd-row"><span class="bd-type"><%= y.t %></span><span class="bd-val"><%= y.v %>%</span></div><div class="bd-bar"><span style="width:<%= Math.max(4, y.v*18).toFixed(1) %>%"></span></div></li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+      </section>

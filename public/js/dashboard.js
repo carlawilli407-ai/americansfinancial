@@ -153,15 +153,34 @@
   });
 
   // ---------- trade ticket prefill from watchlists / instruments ----------
+  // If a trade ticket (#tkSymbol) exists on the page (e.g. the trading page),
+  // fill it and scroll into view. Otherwise navigate to /trading with the symbol
+  // as a query param so the trade ticket is pre-filled on arrival.
+  (function prefillTradeTicketFromUrl() {
+    var input = document.getElementById('tkSymbol');
+    if (!input) return;
+    var params = new URLSearchParams(window.location.search);
+    var sym = params.get('symbol');
+    if (sym) {
+      input.value = sym.toUpperCase();
+      var t = document.getElementById('trading');
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      input.focus();
+    }
+  })();
+
   document.querySelectorAll('.trade-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
       const sym = btn.getAttribute('data-symbol');
+      if (!sym) return;
       const input = document.getElementById('tkSymbol');
-      if (input && sym) {
+      if (input) {
         input.value = sym;
         const t = document.getElementById('trading');
         if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
         input.focus();
+      } else {
+        window.location.href = '/trading?symbol=' + encodeURIComponent(sym);
       }
     });
   });

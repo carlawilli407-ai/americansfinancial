@@ -1,0 +1,60 @@
+<section id="movemoney" class="sec reveal" style="display:block">
+<h2 class="sec-h">movemoney</h2>
+<div class="action-card<%= openPanel === 'transfer' ? ' open' : '' %>" id="action-transfer">
+          <div class="action-head" data-panel="transfer"><span class="action-title">Transfer between accounts</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (openPanel === 'transfer' && transferred) { %><div class="action-banner pos">Transfer completed — cash has been moved between your accounts.</div><% } %>
+            <% if (openPanel === 'transfer' && payError) { %><div class="action-banner neg">Transfer not completed — check that the accounts differ and that sufficient funds are available.</div><% } %>
+            <form class="alert-form" method="post" action="/transfer">
+              <div class="tt-row"><label>From</label><select name="from"><% accounts.forEach(function(a){ %><option value="<%= a.type %>"><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>To</label><select name="to"><% accounts.forEach(function(a){ %><option value="<%= a.type %>"><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
+              <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Schedule transfer</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="action-card<%= openPanel === 'deposit' ? ' open' : '' %>" id="action-deposit">
+          <div class="action-head" data-panel="deposit"><span class="action-title">Deposit money</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (openPanel === 'deposit' && deposited) { %><div class="action-banner">Deposit submitted — pending. Funds will be credited once reviewed.</div><% } %>
+            <% if (openPanel === 'deposit' && payError) { %><div class="action-banner neg">Deposit not completed — check the account and amount, then try again.</div><% } %>
+            <form class="alert-form" method="post" action="/deposit">
+              <div class="tt-row"><label>Deposit to</label><select name="account_id"><% accounts.forEach(function(a){ %><option value="<%= a.id %>" <%= a.id===defaultAccount.id?'selected':'' %>><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
+              <div class="tt-row"><label>Method</label><select name="method"><option>ACH (1-3 business days)</option><option>Check deposit</option><option>Wire transfer</option></select></div>
+              <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Deposit</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="action-card<%= openPanel === 'paybills' ? ' open' : '' %>" id="action-paybills">
+          <div class="action-head" data-panel="paybills"><span class="action-title">Pay bills</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (openPanel === 'paybills' && paid) { %><div class="action-banner">Payment submitted — pending. The payment will be processed once reviewed.</div><% } %>
+            <% if (openPanel === 'paybills' && payError) { %><div class="action-banner neg">Payment not completed — check that sufficient funds are available and try again.</div><% } %>
+            <form class="alert-form" method="post" action="/pay-bills">
+              <div class="tt-row"><label>Pay from</label><select name="account_id"><% accounts.forEach(function(a){ %><option value="<%= a.id %>" <%= a.id===defaultAccount.id?'selected':'' %>><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>Payee</label><input name="payee" type="text" placeholder="e.g. Electric Co." autocomplete="off" required></div>
+              <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
+              <div class="tt-row"><label>Payment date</label><input name="date" type="date"></div>
+              <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Schedule payment</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="action-card<%= openPanel === 'movemoney' ? ' open' : '' %>" id="action-movemoney">
+          <div class="action-head" data-panel="movemoney"><span class="action-title">Move money</span><span class="action-toggle">▼</span></div>
+          <div class="action-body">
+            <% if (openPanel === 'movemoney' && moved) { %><div class="action-banner">Transfer submitted — pending. The external transfer will be sent once reviewed.</div><% } %>
+            <% if (openPanel === 'movemoney' && payError) { %><div class="action-banner neg">Transfer not completed — check that sufficient funds are available and try again.</div><% } %>
+            <form class="alert-form" method="post" action="/move-money">
+              <div class="tt-row"><label>Move from</label><select name="account_id"><% accounts.forEach(function(a){ %><option value="<%= a.id %>" <%= a.id===defaultAccount.id?'selected':'' %>><%= a.type %> (#<%= a.number %>) &mdash; <%= h.money(a.cash) %> cash</option><% }); %></select></div>
+              <div class="tt-row"><label>Destination bank</label><input name="external_bank" type="text" placeholder="e.g. Chase ••1234" autocomplete="off" required></div>
+              <div class="tt-row"><label>Amount</label><input name="amount" type="number" step="any" min="0" placeholder="$0.00" required></div>
+              <div class="tt-row"><label>Transfer date</label><input name="date" type="date"></div>
+              <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">Send money</button></div>
+            </form>
+          </div>
+        </div>
+</section>

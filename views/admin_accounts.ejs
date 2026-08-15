@@ -1,0 +1,56 @@
+<%- include('partials/head', {title: 'Accounts - ' + target.full_name + ' - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Admin</div>
+      <nav>
+        <a href="/admin">← Back to users</a>
+        <a href="/admin">Users</a>
+        <a href="/admin/transactions">Transactions</a>
+        <a href="/admin/<%= target.id %>/accounts" class="active">Account details</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="page-head">
+        <h1>Accounts — <%= target.full_name %> (@<%= target.username %>)</h1>
+        <span class="muted">Member since <%= target.created_at %></span>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="v"><%= h.money(totalAum) %></div><div class="l">Total AUM</div></div>
+        <div class="stat"><div class="v"><%= accounts.length %></div><div class="l">Accounts</div></div>
+      </div>
+
+      <div class="card">
+        <h2>Account list</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th><th>Nickname</th><th>Number</th><th>Positions</th><th>Balance</th><th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% accounts.forEach(function(a){ %>
+            <tr>
+              <td><strong><%= a.type %></strong></td>
+              <td><%= a.nickname || '—' %></td>
+              <td><code><%= a.number %></code></td>
+              <td><%= a.positionCount %></td>
+              <td class="num"><%= h.money(a.balance) %></td>
+              <td class="muted"><%= a.created_at %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <%- include('partials/footer') %>
+</body>
+</html>

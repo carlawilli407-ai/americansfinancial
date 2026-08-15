@@ -1,0 +1,39 @@
+<section id="alerts" class="sec reveal">
+        <h2 class="sec-h">Alerts &amp; notifications</h2>
+        <div class="alerts-grid">
+          <div class="card">
+            <h2>Create an alert</h2>
+            <form class="alert-form" method="post" action="/alerts">
+              <div class="tt-row"><label>Type</label>
+                <select name="kind"><option>Price</option><option>Portfolio</option><option>Market</option></select>
+              </div>
+              <div class="tt-row"><label>Symbol</label><input name="symbol" placeholder="e.g. AAPL (optional)" class="form-input"></div>
+              <div class="tt-row"><label>Trigger</label><input name="trigger" placeholder="e.g. Above 180.00" required class="form-input"></div>
+              <button class="btn btn-primary btn-block" type="submit">Create alert</button>
+            </form>
+          </div>
+          <div class="card">
+            <h2>Your alerts</h2>
+            <% if (alerts.length === 0) { %><div class="empty">No alerts set. Price, portfolio and market alerts will appear here.</div><% } else { %>
+            <table>
+              <thead><tr><th>Type</th><th>Symbol</th><th>Trigger</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                <% alerts.forEach(function(a){ %>
+                <tr>
+                  <td><%= a.kind %></td>
+                  <td><%= a.symbol || '—' %></td>
+                  <td><%= a.trigger %></td>
+                  <td><span class="alert-status active"><span class="dot"></span>Active</span></td>
+                  <td>
+                    <form method="post" action="/alerts/<%= a.id %>/delete" style="display:inline" onsubmit="return confirm('Delete this alert?');">
+                      <button class="btn btn-secondary btn-sm" type="submit">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+            <% } %>
+          </div>
+        </div>
+      </section>

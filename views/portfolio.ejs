@@ -1,0 +1,159 @@
+<%- include('partials/head', {title:'Portfolio - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio" class="active"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts & notifications</a>
+        <a href="/accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="portfolio-strip reveal">
+        <div class="ps-main">
+          <div class="ps-lbl">Total account value</div>
+          <div class="ps-sub">As of latest market close</div>
+          <div class="ps-value"><%= h.money(totalValue) %></div>
+          <div class="ps-pills">
+            <span class="ps-pill <%= h.cls(totalDayChange) %>">&#9650; <%= h.signedMoney(totalDayChange) %> today</span>
+            <span class="ps-pill <%= h.cls(totalGainLoss) %>">&#9670; <%= h.signedMoney(totalGainLoss) %> (<%= h.pct(totalGainLossPct) %>)</span>
+          </div>
+        </div>
+        <div class="ps-stats">
+          <div class="ps-stat"><div class="v"><%= h.money(cashAvailable) %></div><div class="l">Cash available</div></div>
+          <div class="ps-stat"><div class="v"><%= h.money(buyingPower) %></div><div class="l">Buying power</div></div>
+          <div class="ps-stat"><div class="v"><%= accounts.length %></div><div class="l">Accounts</div></div>
+        </div>
+      </div>
+
+      <section class="sec reveal">
+        <h2 class="sec-h">Portfolio</h2>
+        <div class="sec-sub">Holdings, performance, and allocation across all your accounts.</div>
+        
+        <div class="card">
+          <h2>Positions — holdings, cost basis & market value</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Symbol</th><th>Name</th><th>Account</th>
+                <th class="num">Quantity</th><th class="num">Price</th>
+                <th class="num">Market value</th><th class="num">Today</th>
+                <th class="num">Gain / loss</th><th class="num">Gain / loss %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% positions.forEach(function(p){ var day = p.marketValue * (({FXAIX:0.62,FSKAX:0.55,GOOGL:1.18,AAPL:-0.43,FZROX:0.41}[p.symbol]||0.3)/100); %>
+              <tr>
+                <td><strong><%= p.symbol %></strong></td>
+                <td><%= p.name %></td>
+                <td><%= p.account %></td>
+                <td class="num"><%= h.num(p.quantity) %></td>
+                <td class="num"><%= h.money(p.price) %></td>
+                <td class="num"><%= h.money(p.marketValue) %></td>
+                <td class="num <%= day>=0?'pos':'neg' %>"><%= h.signedMoney(day) %></td>
+                <td class="num <%= h.cls(p.gainLoss) %>"><%= h.signedMoney(p.gainLoss) %></td>
+                <td class="num <%= h.cls(p.gainLossPct) %>"><%= h.pct(p.gainLossPct) %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5">Total</td>
+                <td class="num"><%= h.money(totalValue) %></td>
+                <td class="num <%= h.cls(totalDayChange) %>"><%= h.signedMoney(totalDayChange) %></td>
+                <td class="num <%= h.cls(totalGainLoss) %>"><%= h.signedMoney(totalGainLoss) %></td>
+                <td class="num <%= h.cls(totalGainLoss) %>"><%= h.pct(totalGainLossPct) %></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Asset allocation</h2>
+            <div class="alloc">
+              <svg viewBox="0 0 120 120" class="donut" role="img" aria-label="Asset allocation">
+                <% var C = 2 * Math.PI * 45, off = 0; allocation.forEach(function(s){ var len = (s.pct/100)*C; %>
+                <circle cx="60" cy="60" r="45" fill="none" stroke="<%= s.color %>" stroke-width="16"
+                  stroke-dasharray="<%= len.toFixed(2) %> <%= (C-len).toFixed(2) %>" stroke-dashoffset="<%= (-off).toFixed(2) %>" transform="rotate(-90 60 60)"/>
+                <% off += len; }); %>
+              <text x="60" y="57" text-anchor="middle" class="donut-total"><%= h.money(totalValue) %></text>
+              <text x="60" y="71" text-anchor="middle" class="donut-sub">Total value</text>
+              </svg>
+              <ul class="alloc-legend">
+                <% allocation.forEach(function(s){ %>
+                <li><span class="dot" style="background:<%= s.color %>"></span><span class="al-cls"><%= s.cls %></span> <span class="muted"><%= s.pct.toFixed(2) %>%</span> <span class="al-val"><%= h.money(s.value) %></span></li>
+                <% }); %>
+              </ul>
+            </div>
+          </div>
+          <div class="card insights-half">
+            <h2>Dividends & income</h2>
+            <div class="big-income"><%= h.money(dividendsIncome) %></div>
+            <div class="muted">trailing dividends credited to your accounts</div>
+            <h3 style="margin-top:18px">Account breakdown</h3>
+            <ul class="breakdown">
+              <% accountBreakdown.forEach(function(a){ %>
+              <li>
+                <div class="bd-row"><span class="bd-type"><%= a.type %></span><span class="muted"><%= a.number %></span><span class="bd-val"><%= h.money(a.value) %> &middot; <%= a.pct.toFixed(2) %>%</span></div>
+                <div class="bd-bar"><span style="width:<%= Math.max(2, a.pct).toFixed(1) %>%"></span></div>
+              </li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Portfolio performance — last 12 months</h2>
+          <svg viewBox="0 0 600 160" class="linechart" preserveAspectRatio="none" role="img" aria-label="12 month value trend">
+            <% var tv = valueTrend, mx = 0, mn = 1e18; tv.forEach(function(v){ if(v.value>mx)mx=v.value; if(v.value<mn)mn=v.value; });
+               var W = 600, H = 130, pad = 14;
+               var pts = tv.map(function(v,i){ var x = pad + i*(W-2*pad)/(tv.length-1); var y = H-pad - ((v.value-mn)/((mx-mn)||1))*(H-2*pad); return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+               var areaPts = pts + ' ' + (W-pad).toFixed(1) + ',' + (H-pad) + ' ' + pad + ',' + (H-pad); %>
+            <defs><linearGradient id="perfFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#368727" stop-opacity=".28"/><stop offset="100%" stop-color="#368727" stop-opacity="0"/></linearGradient></defs>
+            <polygon points="<%= areaPts %>" fill="url(#perfFill)"/>
+            <polyline fill="none" stroke="#368727" stroke-width="2.5" points="<%= pts %>"/>
+            <% tv.forEach(function(v,i){ var x = pad + i*(W-2*pad)/(tv.length-1); var y = H-pad - ((v.value-mn)/((mx-mn)||1))*(H-2*pad); %>
+              <circle cx="<%= x.toFixed(1) %>" cy="<%= y.toFixed(1) %>" r="2.6" fill="#0F5319"/>
+            <% }); %>
+          </svg>
+          <div class="trend-labels"><% tv.forEach(function(v){ %><span><%= v.month %></span><% }); %></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>window.__DASH__ = <%- JSON.stringify(clientData) %>;</script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

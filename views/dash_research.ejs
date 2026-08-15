@@ -1,0 +1,115 @@
+<%- include('partials/head', {title:'Research - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research" class="active"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts & notifications</a>
+        <a href="/accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <section class="sec reveal">
+        <h2 class="sec-h">Research</h2>
+        <div class="sec-sub">Quotes, analyst views, and the latest market news.</div>
+        
+        <div class="card">
+          <div class="tabs" data-tabs>
+            <button class="tab active" data-tab="rs-stocks">Stocks</button>
+            <button class="tab" data-tab="rs-etfs">ETFs</button>
+            <button class="tab" data-tab="rs-funds">Mutual funds</button>
+            <button class="tab" data-tab="rs-opts">Options</button>
+            <button class="tab" data-tab="rs-bonds">Bonds</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" data-panel="rs-stocks">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Chg %</th><th>Analyst</th><th class="num">Target</th></tr></thead>
+              <tbody><% research.tabs.Stocks.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><%= ['Buy','Overweight','Hold'][q.symbol.length%3] %></td><td class="num"><%= h.money(q.price*1.1) %></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="rs-etfs">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Chg %</th><th>Analyst</th><th class="num">Target</th></tr></thead>
+              <tbody><% research.tabs.ETFs.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td>Buy</td><td class="num"><%= h.money(q.price*1.08) %></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="rs-funds">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Chg %</th></tr></thead>
+              <tbody><% research.tabs['Mutual funds'].forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="rs-opts">
+              <table><thead><tr><th>Contract</th><th>Name</th><th class="num">Premium</th><th class="num">Chg %</th></tr></thead>
+              <tbody><% research.tabs.Options.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="rs-bonds">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Yield</th></tr></thead>
+              <tbody><% research.tabs.Bonds.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num"><%= q.yld %>%</td></tr><% }); %></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Company financials & analyst info</h2>
+            <ul class="fin-list">
+              <li><span>Market cap</span><strong>$2.8T</strong></li>
+              <li><span>P/E (ttm)</span><strong>31.4</strong></li>
+              <li><span>EPS</span><strong>7.18</strong></li>
+              <li><span>Dividend yield</span><strong>0.45%</strong></li>
+              <li><span>Analyst rating</span><strong>Overweight</strong></li>
+              <li><span>Price target</span><strong>$248.00</strong></li>
+            </ul>
+          </div>
+          <div class="card insights-half">
+            <h2>Research reports & screeners</h2>
+            <ul class="doc-list">
+              <% research.screeners.forEach(function(s){ %>
+              <li><span class="doc-icon">&#128270;</span><span class="doc-main"><span class="doc-name"><%= s.name %></span><span class="doc-meta">Screener &middot; <%= s.matches %> matches</span></span><a class="btn btn-secondary btn-sm" href="#">Run</a></li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Market news</h2>
+          <ul class="news-list">
+            <% research.news.forEach(function(n){ %>
+            <li><span class="news-src"><%= n.src %></span><span class="news-t"><%= n.t %></span><span class="news-w muted"><%= n.when %></span></li>
+            <% }); %>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>window.__DASH__ = <%- JSON.stringify(clientData) %>;</script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

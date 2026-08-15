@@ -1,0 +1,28 @@
+<section id="chart" class="sec reveal">
+        <h2 class="sec-h">Advanced charting</h2>
+        <div class="card">
+          <div class="chart-toolbar">
+            <div class="tabs small" data-tabs>
+              <button class="tab active" data-tab="tf-1d">1D</button>
+              <button class="tab" data-tab="tf-1w">1W</button>
+              <button class="tab" data-tab="tf-1m">1M</button>
+              <button class="tab" data-tab="tf-3m">3M</button>
+              <button class="tab" data-tab="tf-6m">6M</button>
+              <button class="tab" data-tab="tf-1y">1Y</button>
+            </div>
+            <div class="chart-toggles">
+              <button class="ind on" data-ind="ma20">MA 20</button>
+              <button class="ind on" data-ind="ma50">MA 50</button>
+              <button class="ind" data-ind="vwap">VWAP</button>
+              <button class="ind" data-ind="bb">Bollinger</button>
+            </div>
+            <div class="chart-tools">
+              <button class="tool">Trend</button><button class="tool">Fib</button><button class="tool">Note</button>
+              <select id="cmpSel"><option value="">Compare…</option><option>AAPL</option><option>SPY</option><option>QQQ</option></select>
+              <a class="btn btn-primary btn-sm" href="#trading">Trade from chart</a>
+            </div>
+          </div>
+          <div id="candleChart" class="candle-chart"></div>
+          <div class="muted" style="font-size:12px;margin-top:8px">Past performance is not indicative of future results. Chart indicators are shown for analysis only.</div>
+        </div>
+      </section>

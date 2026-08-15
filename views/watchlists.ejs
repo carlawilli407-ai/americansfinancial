@@ -1,0 +1,110 @@
+<%- include('partials/head', {title:'Watchlists - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists" class="active"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts & notifications</a>
+        <a href="/accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <section class="sec reveal">
+        <h2 class="sec-h">Watchlists</h2>
+        <div class="sec-sub">Monitor symbols with real-time price movement.</div>
+        
+        <div class="wl-controls">
+          <label><input type="checkbox" id="wlLive" checked> Real-time quotes</label>
+          <span class="muted">Columns:</span>
+          <span class="chips">
+            <span class="chip on">Symbol</span><span class="chip on">Last</span><span class="chip on">Change</span>
+            <span class="chip on">Change %</span><span class="chip on">Volume</span><span class="chip on">Bid</span><span class="chip on">Ask</span>
+          </span>
+        </div>
+
+        <form class="wl-new" method="post" action="/watchlists/new">
+          <input name="name" placeholder="New watchlist name" maxlength="60" required>
+          <button class="btn btn-secondary btn-sm" type="submit">Create list</button>
+        </form>
+
+        <% watchlists.forEach(function(wl){ %>
+        <div class="card">
+          <h2>
+            <%= wl.name %>
+            <span class="muted" style="font-weight:400;font-size:13px">— custom list</span>
+            <form method="post" action="/watchlists/<%= wl.id %>/delete" style="display:inline" onsubmit="return confirm('Delete this watchlist?');">
+              <button class="btn btn-secondary btn-sm wl-del" type="submit">Delete list</button>
+            </form>
+          </h2>
+          <form class="wl-add" method="post" action="/watchlists/<%= wl.id %>/add">
+            <input name="symbol" placeholder="Add symbol (e.g. AAPL)" maxlength="12" required>
+            <button class="btn btn-secondary btn-sm" type="submit">Add</button>
+          </form>
+          <% if (!wl.items.length) { %>
+            <div class="empty">No symbols yet. Add one above.</div>
+          <% } else { %>
+          <table class="wl-table">
+            <thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Change</th><th class="num">Change %</th><th class="num">Volume</th><th class="num">Bid</th><th class="num">Ask</th><th></th></tr></thead>
+            <tbody>
+              <% wl.items.forEach(function(q){ %>
+              <tr data-sym="<%= q.symbol %>">
+                <td><strong><%= q.symbol %></strong></td>
+                <td class="muted"><%= q.name %></td>
+                <td class="num lv-price" data-field="price"><%= h.money(q.price) %></td>
+                <td class="num lv-chg" data-field="change"><%= (q.change>=0?'+':'') + q.change.toFixed(2) %></td>
+                <td class="num lv-pct <%= q.changePct>=0?'pos':'neg' %>" data-field="changePct"><%= h.pct(q.changePct) %></td>
+                <td class="num"><%= h.num(q.volume) %></td>
+                <td class="num"><%= h.money(q.bid) %></td>
+                <td class="num"><%= h.money(q.ask) %></td>
+                <td>
+                  <button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button>
+                  <form method="post" action="/watchlists/<%= wl.id %>/remove" style="display:inline">
+                    <input type="hidden" name="symbol" value="<%= q.symbol %>">
+                    <button class="btn btn-secondary btn-sm wl-x" type="submit" title="Remove <%= q.symbol %>">&#215;</button>
+                  </form>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+          <% } %>
+        </div>
+        <% }); %>
+      </section>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>window.__DASH__ = <%- JSON.stringify(clientData) %>;</script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

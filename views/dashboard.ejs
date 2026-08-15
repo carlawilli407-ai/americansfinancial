@@ -9,17 +9,17 @@
     <aside class="dash-nav">
       <div class="dash-nav-title">Menu</div>
       <nav>
-        <a href="#home" class="active"><span class="ic">&#127968;</span>Home</a>
-        <a href="#portfolio"><span class="ic">&#128202;</span>Portfolio</a>
-        <a href="#trading"><span class="ic">&#128200;</span>Trading</a>
-        <a href="#watchlists"><span class="ic">&#128221;</span>Watchlists</a>
-        <a href="#chart"><span class="ic">&#128201;</span>Advanced charting</a>
-        <a href="#research"><span class="ic">&#128269;</span>Research</a>
-        <a href="#planning"><span class="ic">&#127919;</span>Planning</a>
-        <a href="#activity"><span class="ic">&#128338;</span>Activity</a>
-        <a href="#alerts"><span class="ic">&#128276;</span>Alerts &amp; notifications</a>
-        <a href="#accounts"><span class="ic">&#128184;</span>Accounts</a>
-        <a href="#fixedincome"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts &amp; notifications</a>
+        <a href="/accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income"><span class="ic">&#128176;</span>Fixed income</a>
         <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
       </nav>
     </aside>
@@ -62,17 +62,17 @@
             <h1>Welcome back, <%= user.full_name.split(' ')[0] %></h1>
             <div class="muted">Portfolio summary &middot; Last updated just now</div>
           </div>
-          <a class="btn btn-secondary btn-sm" href="#activity">View statements</a>
+          <a class="btn btn-secondary btn-sm" href="/activity">View statements</a>
         </div>
 
         <div class="quick">
-          <button type="button" class="btn btn-primary" data-panel="trade">Trade</button>
-          <button type="button" class="btn btn-secondary" data-panel="transfer">Transfer</button>
-          <button type="button" class="btn btn-secondary" data-panel="deposit">Deposit</button>
-          <button type="button" class="btn btn-secondary" data-panel="paybills">Pay bills</button>
-          <button type="button" class="btn btn-secondary" data-panel="movemoney">Move money</button>
-          <button type="button" class="btn btn-secondary" data-panel="externaltransfer">External transfer</button>
-          <button type="button" class="btn btn-secondary" data-panel="history">History<% if (pendingCount && pendingCount > 0) { %> <span class="badge" style="background:#fff3cd;color:#855b00;border:1px solid #ffdd57;font-size:11px"><%= pendingCount %> pending</span><% } %></button>
+          <a href="/trading" class="btn btn-primary">Trade</a>
+          <a href="/transfer" class="btn btn-secondary">Transfer</a>
+          <a href="/deposit" class="btn btn-secondary">Deposit</a>
+          <a href="/pay-bills" class="btn btn-secondary">Pay bills</a>
+          <a href="/move-money" class="btn btn-secondary">Move money</a>
+          <a href="/external-transfer" class="btn btn-secondary">External transfer</a>
+          <a href="/activity" class="btn btn-secondary">History<% if (pendingCount && pendingCount > 0) { %> <span class="badge" style="background:#fff3cd;color:#855b00;border:1px solid #ffdd57;font-size:11px"><%= pendingCount %> pending</span><% } %></a>
         </div>
 
         <div class="card">
@@ -392,7 +392,7 @@
             <div class="chart-tools">
               <button class="tool">Trend</button><button class="tool">Fib</button><button class="tool">Note</button>
               <select id="cmpSel"><option value="">Compare…</option><option>AAPL</option><option>SPY</option><option>QQQ</option></select>
-              <a class="btn btn-primary btn-sm" href="#trading">Trade from chart</a>
+              <a class="btn btn-primary btn-sm" href="/trading">Trade from chart</a>
             </div>
           </div>
           <div id="candleChart" class="candle-chart"></div>

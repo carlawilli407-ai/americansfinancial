@@ -1,0 +1,93 @@
+<%- include('partials/head', {title:'Planning - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning" class="active"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts & notifications</a>
+        <a href="/accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <section class="sec reveal">
+        <h2 class="sec-h">Planning</h2>
+        <div class="sec-sub">Model your goals and project your retirement.</div>
+        
+        <div class="kpi-grid">
+          <div class="kpi"><div class="lbl">Net worth</div><div class="big"><%= h.money(planning.netWorth) %></div></div>
+          <div class="kpi"><div class="lbl">Retirement (now)</div><div class="big"><%= h.money(planning.retirement.current) %></div><div class="sub muted"><%= planning.retirement.assume %></div></div>
+          <% planning.retirement.projection.forEach(function(p){ %>
+          <div class="kpi"><div class="lbl">In <%= p.years %> yrs</div><div class="big"><%= h.money(p.value) %></div></div>
+          <% }); %>
+        </div>
+
+        <div class="card">
+          <h2>Goals</h2>
+          <div class="goal-grid">
+            <% planning.goals.forEach(function(g){ var pct = Math.min(100, Math.round(g.current/g.target*100)); %>
+            <div class="goal">
+              <div class="goal-top"><span><%= g.name %></span><span class="muted">by <%= g.by %></span></div>
+              <div class="goal-bar"><span style="width:<%= pct %>%"></span></div>
+              <div class="goal-vals"><span class="goal-name"><%= g.name %></span><span class="goal-target"><%= h.money(g.current) %> / <%= h.money(g.target) %> (<%= pct %>%)</span></div>
+              <div class="goal-status <%= pct>=80?'ontrack':'behind' %>"><%= pct>=80?'On track':'Behind target' %></div>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Cash-flow information</h2>
+            <ul class="breakdown">
+              <% planning.cashFlow.forEach(function(c){ %>
+              <li><div class="bd-row"><span class="bd-type"><%= c.label %></span><span class="bd-val <%= c.kind %>"><%= h.signedMoney(c.value) %></span></div></li>
+              <% }); %>
+            </ul>
+          </div>
+          <div class="card insights-half">
+            <h2>Financial planning tools</h2>
+            <ul class="doc-list">
+              <% planning.tools.forEach(function(t){ %>
+              <li><span class="doc-icon">&#128202;</span><span class="doc-main"><span class="doc-name"><%= t %></span></span><a class="btn btn-secondary btn-sm" href="#">Open</a></li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>window.__DASH__ = <%- JSON.stringify(clientData) %>;</script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

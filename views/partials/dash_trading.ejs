@@ -1,0 +1,117 @@
+<section id="trading" class="sec reveal">
+        <h2 class="sec-h">Trading</h2>
+        <div class="sec-sub">Place trades and track open orders across every asset class.</div>
+        <div class="trading-grid">
+          <div class="card">
+            <h2>Order entry</h2>
+            <% if (orderPlaced) { %><div class="action-banner pos" style="margin-bottom:12px">Order placed — your order is queued. Manage it in Open orders below.</div><% } %>
+            <div class="quick-syms" style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap">
+              <span class="muted" style="font-size:12px">Quick pick:</span>
+              <% ['AAPL','MSFT','GOOGL','SPY','NVDA','QQQ'].forEach(function(s){ %>
+              <button type="button" class="qsym btn btn-secondary btn-sm" data-sym="<%= s %>"><%= s %></button>
+              <% }); %>
+            </div>
+            <form class="trade-ticket" method="post" action="/orders">
+              <div class="tt-row">
+                <label>Symbol</label>
+                <input id="tkSymbol" name="symbol" placeholder="e.g. AAPL" autocomplete="off" required>
+              </div>
+              <div class="tt-row tt-2">
+                <div><label>Side</label><select name="side"><option>BUY</option><option>SELL</option></select></div>
+                <div><label>Type</label><select name="type"><option>Market</option><option>Limit</option><option>Stop</option></select></div>
+              </div>
+              <div class="tt-row"><label>Quantity</label><input name="quantity" type="number" step="any" min="0" placeholder="0" required></div>
+              <div class="tt-row"><label>Limit price</label><input name="limit_price" type="number" step="any" min="0" placeholder="optional"></div>
+              <button class="btn btn-primary btn-block" type="submit">Place order</button>
+            </form>
+          </div>
+          <div class="card">
+            <h2>Open orders</h2>
+            <% if (openOrders.length === 0) { %><div class="empty">No open orders. Use the ticket to place a trade.</div><% } else { %>
+            <table>
+              <thead><tr><th>Symbol</th><th>Side</th><th>Type</th><th class="num">Qty</th><th class="num">Limit</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <% openOrders.forEach(function(o){ %>
+                <tr>
+                  <td><strong><%= o.symbol %></strong></td>
+                  <td class="<%= o.side==='BUY'?'pos':'neg' %>"><%= o.side %></td>
+                  <td><%= o.type %></td>
+                  <td class="num"><%= h.num(o.quantity) %></td>
+                  <td class="num"><%= o.limit_price?h.money(o.limit_price):'—' %></td>
+                  <td><span class="role pos"><%= o.status %></span></td>
+              <td><form method="post" action="/orders/<%= o.id %>/fill" style="display:inline"><button class="btn btn-secondary btn-sm" type="submit" style="<%= o.status==='Open'?'':'display:none' %>">Fill</button></form></td>
+                  <td>
+                    <form method="post" action="/orders/<%= o.id %>/cancel" style="display:inline">
+                      <button class="btn btn-secondary btn-sm" type="submit">Cancel</button>
+                    </form>
+                    <form method="post" action="/orders/<%= o.id %>/fill" style="display:inline">
+                      <button class="btn btn-primary btn-sm" type="submit">Fill</button>
+                    </form>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Tradeable instruments</h2>
+          <div class="tabs" data-tabs>
+            <button class="tab active" data-tab="tk-stocks">Stocks</button>
+            <button class="tab" data-tab="tk-etfs">ETFs</button>
+            <button class="tab" data-tab="tk-funds">Mutual funds</button>
+            <button class="tab" data-tab="tk-opts">Options</button>
+            <button class="tab" data-tab="tk-bonds">Bonds / CDs</button>
+            <button class="tab" data-tab="tk-crypto">Crypto where eligible</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" data-panel="tk-stocks">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs.Stocks.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-etfs">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs.ETFs.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-funds">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs['Mutual funds'].forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-opts">
+              <table><thead><tr><th>Contract</th><th>Name</th><th class="num">Premium</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs.Options.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-bonds">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Yield</th><th></th></tr></thead>
+              <tbody><% research.tabs.Bonds.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num"><%= q.yld %>%</td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-crypto">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% (watchlists.filter(function(w){return w.name==='Crypto';})[0]||{items:[]}).items.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Order history &amp; trade confirmations</h2>
+          <% if (orderHistory.length === 0) { %><div class="empty">No past orders yet.</div><% } else { %>
+          <table>
+            <thead><tr><th>Date</th><th>Symbol</th><th>Side</th><th>Type</th><th class="num">Qty</th><th>Status</th></tr></thead>
+            <tbody>
+              <% orderHistory.forEach(function(o){ %>
+              <tr>
+                <td class="muted"><%= o.created_at %></td>
+                <td><strong><%= o.symbol %></strong></td>
+                <td class="<%= o.side==='BUY'?'pos':'neg' %>"><%= o.side %></td>
+                <td><%= o.type %></td>
+                <td class="num"><%= h.num(o.quantity) %></td>
+                <td><span class="role <%= o.status==='Filled'?'admin':'user' %>"><%= o.status %></span></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+          <% } %>
+        </div>
+      </section>

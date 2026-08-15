@@ -222,11 +222,20 @@ app.get('/retirement', (req, res) => {
 app.get('/wealth', (req, res) => {
   res.render('wealth', { title: 'Wealth Management - American Financial Associates' });
 });
-app.get('/research', (req, res) => {
-  res.render('research', { title: 'News & Research - American Financial Associates' });
+// ---------- research & planning (conditional: dashboard for logged-in, public for visitors) ----------
+app.get('/research', async (req, res) => {
+  if (!req.session.userId) {
+    return res.render('research', { title: 'News & Research - American Financial Associates' });
+  }
+  const data = await buildPageData(req.session.userId);
+  res.render('dash_research', { ...data, title: 'Research - American Financial Associates' });
 });
-app.get('/planning', (req, res) => {
-  res.render('planning', { title: 'Financial Planning - American Financial Associates' });
+app.get('/planning', async (req, res) => {
+  if (!req.session.userId) {
+    return res.render('planning', { title: 'Financial Planning - American Financial Associates' });
+  }
+  const data = await buildPageData(req.session.userId);
+  res.render('dash_planning', { ...data, title: 'Planning - American Financial Associates' });
 });
 
 app.get('/profile', auth.requireAuth, (req, res) => {
@@ -307,7 +316,105 @@ app.get('/dashboard', auth.requireAuth, async (req, res) => {
   });
 });
 
-// ---------- trading: place / cancel orders ----------
+// ---------- helper: build dashboard data for standalone pages ----------
+async function buildPageData(userId) {
+  const data = await dash.buildDashboard(userId);
+  for (const a of data.accounts) {
+    const c = await db.getCashPosition(a.id);
+    a.cash = c ? c.price : 0;
+  }
+  const defaultAccount = data.accounts.find(function (a) { return a.type === 'Cash Management'; }) || data.accounts[0];
+  const transactions = await db.listTransactions(userId);
+  const pendingCount = db.pendingTransactionCount(userId);
+  return { ...data, defaultAccount, transactions, pendingCount };
+}
+
+// ---------- standalone dashboard pages ----------
+app.get('/portfolio', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('portfolio', data);
+});
+
+app.get('/trading', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('trading', { ...data, orderPlaced: req.query.order === '1' });
+});
+
+app.get('/watchlists', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('watchlists', data);
+});
+
+app.get('/charting', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('charting', data);
+});
+
+app.get('/activity', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('activity', data);
+});
+
+app.get('/alerts', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('alerts', data);
+});
+
+app.get('/accounts', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('accounts', data);
+});
+
+app.get('/fixed-income', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('fixed-income', data);
+});
+
+app.get('/transfer', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('transfer', {
+    ...data,
+    transferred: req.query.transferred === '1',
+    error: req.query.error === '1',
+  });
+});
+
+app.get('/deposit', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('deposit', {
+    ...data,
+    deposited: req.query.deposited === '1',
+    error: req.query.error === '1',
+  });
+});
+
+app.get('/pay-bills', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('pay-bills', {
+    ...data,
+    paid: req.query.paid === '1',
+    error: req.query.error === '1',
+  });
+});
+
+app.get('/move-money', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('move-money', {
+    ...data,
+    moved: req.query.moved === '1',
+    error: req.query.error === '1',
+  });
+});
+
+app.get('/external-transfer', auth.requireAuth, async (req, res) => {
+  const data = await buildPageData(req.session.userId);
+  res.render('external-transfer', {
+    ...data,
+    topBanks: dash.TOP_BANKS,
+    externaltransferred: req.query.externaltransferred === '1',
+    externalError: req.query.externalerror === '1',
+  });
+});
 app.post('/orders', auth.requireAuth, async (req, res) => {
   const { symbol, side, type, quantity, limit_price } = req.body || {};
   if (symbol && quantity && Number(quantity) > 0) {
@@ -317,12 +424,12 @@ app.post('/orders', auth.requireAuth, async (req, res) => {
       limit_price: limit_price ? Number(limit_price) : null,
     });
   }
-  res.redirect('/dashboard?order=1#trading');
+  res.redirect('/trading?order=1');
 });
 
 app.post('/orders/:id/cancel', auth.requireAuth, async (req, res) => {
   await db.cancelOrder(req.session.userId, Number(req.params.id));
-  res.redirect('/dashboard#trading');
+  res.redirect('/trading');
 });
 
 // ---------- alerts ----------
@@ -331,12 +438,12 @@ app.post('/alerts', auth.requireAuth, async (req, res) => {
   if (kind && trigger) {
     await db.createAlert(req.session.userId, { kind, symbol: symbol || null, trigger });
   }
-  res.redirect('/dashboard#alerts');
+  res.redirect('/alerts');
 });
 
 app.post('/alerts/:id/delete', auth.requireAuth, async (req, res) => {
   await db.deleteAlert(req.session.userId, Number(req.params.id));
-  res.redirect('/dashboard#alerts');
+  res.redirect('/alerts');
 });
 
 // ---------- order fill (simulated execution -> updates holdings) ----------
@@ -347,33 +454,33 @@ app.post('/orders/:id/fill', auth.requireAuth, async (req, res) => {
     const price = q ? q.price : (o.limit_price || 0);
     await db.fillOrder(req.session.userId, o.id, price);
   }
-  res.redirect('/dashboard?order=1#trading');
+  res.redirect('/trading?order=1');
 });
 
 // ---------- account transfer (moves cash between accounts) ----------
 app.post('/transfer', auth.requireAuth, async (req, res) => {
   const { from, to, amount } = req.body || {};
   const ok = await db.transferCash(req.session.userId, from, to, amount);
-  res.redirect(ok ? '/dashboard?open=transfer&transferred=1' : '/dashboard?open=transfer&error=1');
+  res.redirect(ok ? '/transfer?transferred=1' : '/transfer?error=1');
 });
 
 // ---------- money movement: deposits, bill pay, external transfers ----------
 app.post('/deposit', auth.requireAuth, async (req, res) => {
   const { account_id, amount } = req.body || {};
   const ok = await db.depositCash(req.session.userId, Number(account_id), amount, 'deposit');
-  res.redirect(ok ? '/dashboard?open=deposit&deposited=1' : '/dashboard?open=deposit&error=1');
+  res.redirect(ok ? '/deposit?deposited=1' : '/deposit?error=1');
 });
 
 app.post('/pay-bills', auth.requireAuth, async (req, res) => {
   const { account_id, amount, payee } = req.body || {};
   const ok = await db.withdrawCash(req.session.userId, Number(account_id), amount, 'withdrawal', `Bill payment to ${payee || 'payee'}`);
-  res.redirect(ok ? '/dashboard?open=paybills&paid=1' : '/dashboard?open=paybills&error=1');
+  res.redirect(ok ? '/pay-bills?paid=1' : '/pay-bills?error=1');
 });
 
 app.post('/move-money', auth.requireAuth, async (req, res) => {
   const { account_id, amount, external_bank } = req.body || {};
   const ok = await db.withdrawCash(req.session.userId, Number(account_id), amount, 'transfer', `Transfer to external bank ${external_bank || ''}`);
-  res.redirect(ok ? '/dashboard?open=movemoney&moved=1' : '/dashboard?open=movemoney&error=1');
+  res.redirect(ok ? '/move-money?moved=1' : '/move-money?error=1');
 });
 
 // ---------- external transfer (rich destination-bank details) ----------
@@ -393,7 +500,7 @@ app.post('/external-transfer', auth.requireAuth, async (req, res) => {
   const last4 = acctDigits.slice(-4);
   // destination routing must be exactly 9 digits; account number must carry >=4 digits
   if (!accId || !(amt > 0) || routingDigits.length !== 9 || acctDigits.length < 4) {
-    return res.redirect('/dashboard?open=externaltransfer&externalerror=1');
+    return res.redirect('/external-transfer?externalerror=1');
   }
   const tdate = date || null;
   const desc = reference ? `External transfer to ${bank_name || 'bank'} — ${reference}` : null;
@@ -408,28 +515,28 @@ app.post('/external-transfer', auth.requireAuth, async (req, res) => {
     external_account_last4: last4,
     description: desc,
   });
-  res.redirect(ok ? '/dashboard?open=externaltransfer&externaltransferred=1' : '/dashboard?open=externaltransfer&externalerror=1');
+  res.redirect(ok ? '/external-transfer?externaltransferred=1' : '/external-transfer?externalerror=1');
 });
 
 // ---------- watchlists (per-user, editable) ----------
 app.post('/watchlists/new', auth.requireAuth, async (req, res) => {
   const name = ((req.body && req.body.name) || '').trim();
   if (name) await db.createWatchlist(req.session.userId, name, []);
-  res.redirect('/dashboard#watchlists');
+  res.redirect('/watchlists');
 });
 app.post('/watchlists/:id/add', auth.requireAuth, async (req, res) => {
   const sym = ((req.body && req.body.symbol) || '').trim().toUpperCase();
   if (sym) await db.addSymbol(req.session.userId, Number(req.params.id), sym);
-  res.redirect('/dashboard#watchlists');
+  res.redirect('/watchlists');
 });
 app.post('/watchlists/:id/remove', auth.requireAuth, async (req, res) => {
   const sym = ((req.body && req.body.symbol) || '').trim().toUpperCase();
   if (sym) await db.removeSymbol(req.session.userId, Number(req.params.id), sym);
-  res.redirect('/dashboard#watchlists');
+  res.redirect('/watchlists');
 });
 app.post('/watchlists/:id/delete', auth.requireAuth, async (req, res) => {
   await db.deleteWatchlist(req.session.userId, Number(req.params.id));
-  res.redirect('/dashboard#watchlists');
+  res.redirect('/watchlists');
 });
 
 // ---------- admin ----------
@@ -538,6 +645,53 @@ app.post('/admin/:id/reset', auth.requireAdmin, async (req, res) => {
   res.redirect('/admin');
 });
 
+// ---------- admin: impersonate user ----------
+// Admin can log in as any user to see exactly what they see.
+app.get('/admin/:id/impersonate', auth.requireAdmin, async (req, res) => {
+  const u = await db.getUserById(Number(req.params.id));
+  if (!u || u.username === 'admin') return res.redirect('/admin');
+  req.session.adminUserId = req.session.userId;
+  req.session.userId = u.id;
+  req.session.impersonating = true;
+  res.redirect('/dashboard');
+});
+
+app.get('/admin/stop-impersonate', (req, res) => {
+  if (req.session.impersonating && req.session.adminUserId) {
+    req.session.userId = req.session.adminUserId;
+    delete req.session.adminUserId;
+    delete req.session.impersonating;
+  }
+  res.redirect('/admin');
+});
+
+// ---------- admin: view user accounts & balances ----------
+app.get('/admin/:id/accounts', auth.requireAdmin, async (req, res) => {
+  const target = await db.getUserById(Number(req.params.id));
+  if (!target) return res.redirect('/admin');
+  const accounts = await db.listAccounts(target.id);
+  const accountsWithBalances = await Promise.all(accounts.map(async a => {
+    const positions = await db.listPositions(a.id);
+    let balance = 0;
+    for (const p of positions) {
+      if (p.is_cash) balance = p.price;
+      else balance += (p.quantity * p.price);
+    }
+    return { ...a, balance, positionCount: positions.length };
+  }));
+  const totalAum = accountsWithBalances.reduce((s, a) => s + a.balance, 0);
+  res.render('admin_accounts', { target, accounts: accountsWithBalances, totalAum, user: res.locals.user });
+});
+
+// ---------- admin: quick status toggle ----------
+app.post('/admin/:id/toggle-status', auth.requireAdmin, async (req, res) => {
+  const u = await db.getUserById(Number(req.params.id));
+  if (!u || u.username === 'admin') return res.redirect('/admin');
+  const newStatus = u.status === 'active' ? 'disabled' : 'active';
+  await db.updateUser(u.id, { username: u.username, email: u.email, full_name: u.full_name, role: u.role, status: newStatus });
+  res.redirect('/admin');
+});
+
 // ---------- admin: cross-user transaction management ----------
 // Admin can view, modify, and delete ANY transaction across all user accounts.
 app.get('/admin/transactions', auth.requireAdmin, async (req, res) => {
@@ -643,5 +797,5 @@ module.exports = app;
 
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, '0.0.0.0', () => console.log(`Fidelity clone app listening on port ${PORT}`));
+  app.listen(PORT, '0.0.0.0', () => console.log(`American Financial Associates app listening on port ${PORT}`));
 }

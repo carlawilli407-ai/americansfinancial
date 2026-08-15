@@ -1,0 +1,128 @@
+<%- include('partials/head', {title:'Move Money - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts & notifications</a>
+        <a href="/accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="page-head">
+        <div>
+          <h1>Move Money</h1>
+          <div class="muted">Send money to an external bank account</div>
+        </div>
+        <a class="btn btn-secondary btn-sm" href="/accounts">Back to Accounts</a>
+      </div>
+
+      <% if (moved) { %>
+      <div class="action-banner pos" style="margin-bottom: 16px;">
+        <span>&#10003;</span> Transfer submitted — pending. The external transfer will be sent once reviewed by admin.
+      </div>
+      <% } %>
+      <% if (error) { %>
+      <div class="action-banner neg" style="margin-bottom: 16px;">
+        <span>&#9888;</span> Transfer not completed — check that sufficient funds are available and try again.
+      </div>
+      <% } %>
+
+      <div class="card">
+        <h2>New External Transfer</h2>
+        <form class="alert-form" method="post" action="/move-money">
+          <div class="tt-row">
+            <label>Move from</label>
+            <select name="account_id" required>
+              <% accounts.forEach(function(a){ %>
+              <option value="<%= a.id %>" <%= a.id===defaultAccount.id?'selected':'' %>>
+                <%= a.type %> (#<%= a.number %>) — <%= h.money(a.cash) %> cash available
+              </option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="tt-row">
+            <label>Destination bank</label>
+            <input name="external_bank" type="text" placeholder="e.g. Chase ••1234" autocomplete="off" required>
+          </div>
+          <div class="tt-row">
+            <label>Amount</label>
+            <input name="amount" type="number" step="0.01" min="0.01" placeholder="$0.00" required>
+          </div>
+          <div class="tt-row">
+            <label>Transfer date</label>
+            <input name="date" type="date" value="<%= new Date().toISOString().slice(0,10) %>">
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-block" type="submit">Send Money</button>
+            <a class="btn btn-secondary btn-block" href="/accounts">Cancel</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Recent External Transfers</h2>
+        <% if (transactions && transactions.length) { %>
+        <div class="table-wrap">
+          <table class="hp-tx-table">
+            <thead>
+              <tr>
+                <th>Date</th><th>Description</th><th>Account</th><th>Type</th>
+                <th class="num">Amount</th><th class="num">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% transactions.filter(function(t){ return t.type==='external_transfer' || (t.type==='withdrawal' && t.description && t.description.toLowerCase().includes('external')); }).forEach(function(t){ %>
+              <tr>
+                <td class="muted"><%= t.tdate %></td>
+                <td><%= t.description %><% if (t.status === 'pending') { %><span class="tx-pending">PENDING</span><% } %></td>
+                <td><%= t.account_type || (t.account_id ? '#' + t.account_id : '') %></td>
+                <td><span class="role user"><%= t.type %></span></td>
+                <td class="num <%= (t.amount||0) >= 0 ? 'pos' : 'neg' %>"><%= t.amount != null ? h.signedMoney(t.amount) : '—' %></td>
+                <td class="num"><%= t.balance_after != null ? h.money(t.balance_after) : '—' %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <% } else { %>
+        <div class="empty">No external transfers yet. Your transfer history will appear here once you send money.</div>
+        <% } %>
+      </div>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>window.__DASH__ = <%- JSON.stringify(clientData) %>;</script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

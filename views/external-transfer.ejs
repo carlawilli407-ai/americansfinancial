@@ -1,0 +1,179 @@
+<%- include('partials/head', {title:'External Transfer - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts & notifications</a>
+        <a href="/accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <div class="page-head">
+        <div>
+          <h1>External Transfer</h1>
+          <div class="muted">Send money to an external bank account with full details</div>
+        </div>
+        <a class="btn btn-secondary btn-sm" href="/accounts">Back to Accounts</a>
+      </div>
+
+      <% if (externaltransferred) { %>
+      <div class="action-banner pos" style="margin-bottom: 16px;">
+        <span>&#10003;</span> External transfer submitted — pending. Funds will be sent to your external bank once reviewed by admin.
+      </div>
+      <% } %>
+      <% if (externalError) { %>
+      <div class="action-banner neg" style="margin-bottom: 16px;">
+        <span>&#9888;</span> External transfer not completed — verify the destination routing, account number, and that sufficient funds are available.
+      </div>
+      <% } %>
+
+      <div class="card">
+        <h2>Select Destination Bank</h2>
+        <div class="muted" style="margin-bottom:12px">Choose from popular banks or select "Other" to enter manually</div>
+        <div class="bank-grid" id="bankGrid">
+          <% topBanks.forEach(function(bank){ %>
+          <label class="bank-option" data-bank='<%= JSON.stringify(bank).replace(/'/g, "'") %>'>
+            <img class="bank-logo" src="<%= bank.logo %>" alt="<%= bank.name %>">
+            <span class="bank-name"><%= bank.name %></span>
+            <input type="radio" name="selected_bank" value="<%= bank.id %>" style="display:none">
+          </label>
+          <% }); %>
+          <label class="bank-option other" data-bank='{"id":"other","name":"Other bank","logo":""}'>
+            <div class="bank-logo other-icon">+</div>
+            <span class="bank-name">Other bank</span>
+            <input type="radio" name="selected_bank" value="other" style="display:none">
+          </label>
+        </div>
+      </div>
+
+      <div class="card" id="transferForm" style="display:none">
+        <h2>Transfer Details</h2>
+        <form class="alert-form" method="post" action="/external-transfer" id="extTransferForm">
+          <input type="hidden" name="bank_logo" id="form_bank_logo">
+          <input type="hidden" name="bank_name" id="form_bank_name">
+          
+          <div class="tt-row">
+            <label>Transfer from</label>
+            <select name="account_id" required>
+              <% accounts.forEach(function(a){ %>
+              <option value="<%= a.id %>" <%= a.id===defaultAccount.id?'selected':'' %>>
+                <%= a.type %> (#<%= a.number %>) — <%= h.money(a.cash) %> cash available
+              </option>
+              <% }); %>
+            </select>
+          </div>
+          
+          <div class="tt-row">
+            <label>Bank name</label>
+            <input name="bank_name_display" type="text" id="form_bank_name_display" placeholder="e.g. First National Bank" autocomplete="off" required readonly>
+          </div>
+          
+          <div class="tt-row">
+            <label>Routing number</label>
+            <input name="routing" type="text" inputmode="numeric" pattern="\d{9}" placeholder="9 digits" autocomplete="off" required maxlength="9">
+          </div>
+          
+          <div class="tt-row">
+            <label>Account holder name</label>
+            <input name="account_holder" type="text" placeholder="Name on external account" autocomplete="off" required>
+          </div>
+          
+          <div class="tt-row">
+            <label>Destination account number</label>
+            <input name="account_number" type="text" inputmode="numeric" placeholder="External account number" autocomplete="off" required>
+            <span class="muted" style="font-size:12px">Only the last 4 digits will be stored</span>
+          </div>
+          
+          <div class="tt-row">
+            <label>Amount</label>
+            <input name="amount" type="number" step="0.01" min="0.01" placeholder="$0.00" required>
+          </div>
+          
+          <div class="tt-row">
+            <label>Transfer date</label>
+            <input name="date" type="date" value="<%= new Date().toISOString().slice(0,10) %>">
+          </div>
+          
+          <div class="tt-row">
+            <label>Reference / memo</label>
+            <input name="reference" type="text" placeholder="Optional reference" autocomplete="off">
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn btn-primary btn-block" type="submit">Schedule External Transfer</button>
+            <a class="btn btn-secondary btn-block" href="/accounts">Cancel</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Recent External Transfers</h2>
+        <% if (transactions && transactions.length) { %>
+        <div class="table-wrap">
+          <table class="hp-tx-table">
+            <thead>
+              <tr>
+                <th>Date</th><th>Description</th><th>Account</th><th>Type</th>
+                <th class="num">Amount</th><th class="num">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% transactions.filter(function(t){ return t.type==='external_transfer'; }).forEach(function(t){ %>
+              <tr>
+                <td class="muted"><%= t.tdate %></td>
+                <td><%= t.description %><% if (t.status === 'pending') { %><span class="tx-pending">PENDING</span><% } %></td>
+                <td><%= t.account_type || (t.account_id ? '#' + t.account_id : '') %></td>
+                <td><span class="role user"><%= t.type %></span></td>
+                <td class="num <%= (t.amount||0) >= 0 ? 'pos' : 'neg' %>"><%= t.amount != null ? h.signedMoney(t.amount) : '—' %></td>
+                <td class="num"><%= t.balance_after != null ? h.money(t.balance_after) : '—' %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <% } else { %>
+        <div class="empty">No external transfers yet. Your transfer history will appear here once you send money.</div>
+        <% } %>
+      </div>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>
+    window.__DASH__ = <%- JSON.stringify(clientData) %>;
+    const topBanks = <%- JSON.stringify(topBanks) %>;
+  </script>
+  <script src="/static/js/external-transfer.js"></script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<%- include('partials/head', {title:'Trading - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading" class="active"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts & notifications</a>
+        <a href="/accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <section class="sec reveal">
+        <h2 class="sec-h">Trading</h2>
+        <div class="sec-sub">Place trades and track open orders across every asset class.</div>
+        
+        <div class="trading-grid">
+          <div class="card">
+            <h2>Order entry</h2>
+            <% if (orderPlaced) { %><div class="action-banner pos" style="margin-bottom:12px">Order placed — your order is queued. Manage it in Open orders below.</div><% } %>
+            <div class="quick-syms" style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap">
+              <span class="muted" style="font-size:12px">Quick pick:</span>
+              <% ['AAPL','MSFT','GOOGL','SPY','NVDA','QQQ'].forEach(function(s){ %>
+              <button type="button" class="qsym btn btn-secondary btn-sm" data-sym="<%= s %>"><%= s %></button>
+              <% }); %>
+            </div>
+            <form class="trade-ticket" method="post" action="/orders">
+              <div class="tt-row">
+                <label>Symbol</label>
+                <input id="tkSymbol" name="symbol" placeholder="e.g. AAPL" autocomplete="off" required>
+              </div>
+              <div class="tt-row tt-2">
+                <div><label>Side</label><select name="side"><option>BUY</option><option>SELL</option></select></div>
+                <div><label>Type</label><select name="type"><option>Market</option><option>Limit</option><option>Stop</option></select></div>
+              </div>
+              <div class="tt-row"><label>Quantity</label><input name="quantity" type="number" step="any" min="0" placeholder="0" required></div>
+              <div class="tt-row"><label>Limit price</label><input name="limit_price" type="number" step="any" min="0" placeholder="optional"></div>
+              <button class="btn btn-primary btn-block" type="submit">Place order</button>
+            </form>
+          </div>
+          <div class="card">
+            <h2>Open orders</h2>
+            <% if (openOrders.length === 0) { %><div class="empty">No open orders. Use the ticket to place a trade.</div><% } else { %>
+            <table>
+              <thead><tr><th>Symbol</th><th>Side</th><th>Type</th><th class="num">Qty</th><th class="num">Limit</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <% openOrders.forEach(function(o){ %>
+                <tr>
+                  <td><strong><%= o.symbol %></strong></td>
+                  <td class="<%= o.side==='BUY'?'pos':'neg' %>"><%= o.side %></td>
+                  <td><%= o.type %></td>
+                  <td class="num"><%= h.num(o.quantity) %></td>
+                  <td class="num"><%= o.limit_price?h.money(o.limit_price):'—' %></td>
+                  <td><span class="role pos"><%= o.status %></span></td>
+                  <td>
+                    <form method="post" action="/orders/<%= o.id %>/fill" style="display:inline"><button class="btn btn-primary btn-sm" type="submit" style="<%= o.status==='Open'?'':'display:none' %>">Fill</button></form>
+                    <form method="post" action="/orders/<%= o.id %>/cancel" style="display:inline"><button class="btn btn-secondary btn-sm" type="submit">Cancel</button></form>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Tradeable instruments</h2>
+          <div class="tabs" data-tabs>
+            <button class="tab active" data-tab="tk-stocks">Stocks</button>
+            <button class="tab" data-tab="tk-etfs">ETFs</button>
+            <button class="tab" data-tab="tk-funds">Mutual funds</button>
+            <button class="tab" data-tab="tk-opts">Options</button>
+            <button class="tab" data-tab="tk-bonds">Bonds / CDs</button>
+            <button class="tab" data-tab="tk-crypto">Crypto where eligible</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" data-panel="tk-stocks">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs.Stocks.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-etfs">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs.ETFs.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-funds">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs['Mutual funds'].forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-opts">
+              <table><thead><tr><th>Contract</th><th>Name</th><th class="num">Premium</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% research.tabs.Options.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-bonds">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Yield</th><th></th></tr></thead>
+              <tbody><% research.tabs.Bonds.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num"><%= q.yld %>%</td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+            <div class="tab-panel" data-panel="tk-crypto">
+              <table><thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Chg %</th><th></th></tr></thead>
+              <tbody><% (watchlists.filter(function(w){return w.name==='Crypto';})[0]||{items:[]}).items.forEach(function(q){ %><tr><td><strong><%= q.symbol %></strong></td><td><%= q.name %></td><td class="num"><%= h.money(q.price) %></td><td class="num <%= q.changePct>=0?'pos':'neg' %>"><%= h.pct(q.changePct) %></td><td><button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button></td></tr><% }); %></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Order history & trade confirmations</h2>
+          <% if (orderHistory.length === 0) { %><div class="empty">No past orders yet.</div><% } else { %>
+          <table>
+            <thead><tr><th>Date</th><th>Symbol</th><th>Side</th><th>Type</th><th class="num">Qty</th><th>Status</th></tr></thead>
+            <tbody>
+              <% orderHistory.forEach(function(o){ %>
+              <tr>
+                <td class="muted"><%= o.created_at %></td>
+                <td><strong><%= o.symbol %></strong></td>
+                <td class="<%= o.side==='BUY'?'pos':'neg' %>"><%= o.side %></td>
+                <td><%= o.type %></td>
+                <td class="num"><%= h.num(o.quantity) %></td>
+                <td><span class="role <%= o.status==='Filled'?'admin':'user' %>"><%= o.status %></span></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+          <% } %>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>window.__DASH__ = <%- JSON.stringify(clientData) %>;</script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

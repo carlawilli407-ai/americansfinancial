@@ -1,0 +1,78 @@
+<%- include('partials/head', {title:'Advanced Charting - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting" class="active"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts & notifications</a>
+        <a href="/accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <section class="sec reveal">
+        <h2 class="sec-h">Advanced charting</h2>
+        <div class="sec-sub">Analyze price action with professional charting tools and indicators.</div>
+        
+        <div class="card">
+          <div class="chart-toolbar">
+            <div class="tabs small" data-tabs>
+              <button class="tab active" data-tab="tf-1d">1D</button>
+              <button class="tab" data-tab="tf-1w">1W</button>
+              <button class="tab" data-tab="tf-1m">1M</button>
+              <button class="tab" data-tab="tf-3m">3M</button>
+              <button class="tab" data-tab="tf-6m">6M</button>
+              <button class="tab" data-tab="tf-1y">1Y</button>
+            </div>
+            <div class="chart-toggles">
+              <button class="ind on" data-ind="ma20">MA 20</button>
+              <button class="ind on" data-ind="ma50">MA 50</button>
+              <button class="ind" data-ind="vwap">VWAP</button>
+              <button class="ind" data-ind="bb">Bollinger</button>
+            </div>
+            <div class="chart-tools">
+              <button class="tool">Trend</button><button class="tool">Fib</button><button class="tool">Note</button>
+              <select id="cmpSel"><option value="">Compare…</option><option>AAPL</option><option>SPY</option><option>QQQ</option></select>
+              <a class="btn btn-primary btn-sm" href="/trading">Trade from chart</a>
+            </div>
+          </div>
+          <div id="candleChart" class="candle-chart"></div>
+          <div class="muted" style="font-size:12px;margin-top:8px">Past performance is not indicative of future results. Chart indicators are shown for analysis only.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>window.__DASH__ = <%- JSON.stringify(clientData) %>;</script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

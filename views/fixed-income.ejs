@@ -1,0 +1,89 @@
+<%- include('partials/head', {title:'Fixed Income - American Financial Associates'}) %>
+<body class="dash">
+  <%- include('partials/topbar') %>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="dash-overlay" id="dashOverlay"></div>
+  <div class="dash-layout">
+    <aside class="dash-nav">
+      <div class="dash-nav-title">Menu</div>
+      <nav>
+        <a href="/dashboard"><span class="ic">&#127968;</span>Home</a>
+        <a href="/portfolio"><span class="ic">&#128202;</span>Portfolio</a>
+        <a href="/trading"><span class="ic">&#128200;</span>Trading</a>
+        <a href="/watchlists"><span class="ic">&#128221;</span>Watchlists</a>
+        <a href="/charting"><span class="ic">&#128201;</span>Advanced charting</a>
+        <a href="/research"><span class="ic">&#128269;</span>Research</a>
+        <a href="/planning"><span class="ic">&#127919;</span>Planning</a>
+        <a href="/activity"><span class="ic">&#128338;</span>Activity</a>
+        <a href="/alerts"><span class="ic">&#128276;</span>Alerts & notifications</a>
+        <a href="/accounts"><span class="ic">&#128184;</span>Accounts</a>
+        <a href="/fixed-income" class="active"><span class="ic">&#128176;</span>Fixed income</a>
+        <a href="/profile"><span class="ic">&#128113;</span>My Profile</a>
+      </nav>
+    </aside>
+
+    <main class="dash-main">
+      <div class="market-ticker reveal">
+        <div class="mt-label">Markets</div>
+        <div class="mt-items">
+          <% research.tabs.Stocks.concat(research.tabs.ETFs.slice(0,2)).forEach(function(q){ %>
+          <div class="mt-item">
+            <span class="mt-sym"><%= q.symbol %></span>
+            <span class="mt-px"><%= h.money(q.price) %></span>
+            <span class="mt-chg <%= q.changePct>=0?'pos':'neg' %>"><%= q.changePct>=0?'▲':'▼' %> <%= h.pct(q.changePct) %></span>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <section class="sec reveal">
+        <h2 class="sec-h">Fixed income</h2>
+        <div class="sec-sub">Bonds, CDs, and fixed income investments.</div>
+        
+        <div class="card">
+          <h2>Bonds & CDs — search & yields</h2>
+          <table>
+            <thead><tr><th>Symbol</th><th>Name</th><th class="num">Price</th><th class="num">Yield</th><th>Maturity</th><th>Frequency</th></tr></thead>
+            <tbody>
+              <% fixedIncome.bonds.forEach(function(b){ %>
+              <tr><td><strong><%= b.symbol %></strong></td><td><%= b.name %></td><td class="num"><%= h.money(b.price) %></td><td class="num"><%= b.yld %>%</td><td><%= b.maturity %></td><td><%= b.freq %></td></tr>
+              <% }); %>
+              <% fixedIncome.cds.forEach(function(c){ %>
+              <tr><td><strong>CD</strong></td><td>Certificate of Deposit &mdash; <%= c.term %></td><td class="num">$<%= h.num(c.min) %></td><td class="num"><%= c.apy %>% APY</td><td><%= c.term %></td><td>Monthly</td></tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Cash-flow analysis & bond ladder</h2>
+            <table>
+              <thead><tr><th>Maturity</th><th class="num">Amount</th><th class="num">Yield</th></tr></thead>
+              <tbody>
+                <% fixedIncome.ladder.forEach(function(l){ %>
+                <tr><td><%= l.year %></td><td class="num"><%= h.money(l.amount) %></td><td class="num"><%= l.yld %>%</td></tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <div class="card insights-half">
+            <h2>Yield / maturity snapshot</h2>
+            <ul class="breakdown">
+              <% fixedIncome.bonds.map(function(b){ return {t:b.symbol, v:b.yld}; }).forEach(function(y){ %>
+              <li><div class="bd-row"><span class="bd-type"><%= y.t %></span><span class="bd-val"><%= y.v %>%</span></div><div class="bd-bar"><span style="width:<%= Math.max(4, y.v*18).toFixed(1) %>%"></span></div></li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <%- include('partials/footer') %>
+  <script>window.__DASH__ = <%- JSON.stringify(clientData) %>;</script>
+  <script src="/static/js/dashboard.js?v=3"></script>
+</body>
+</html>

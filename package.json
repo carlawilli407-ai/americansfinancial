@@ -1,8 +1,8 @@
 {
-  "name": "fidelity-clone",
+  "name": "americansfinancial",
   "version": "1.0.0",
   "private": true,
-  "description": "Pixel-faithful Fidelity.com public clone + functional login, user dashboard, and admin user-management (Node/Express/EJS/SQLite/PostgreSQL/Supabase).",
+  "description": "American Financial Associates — account management, trading dashboard, and admin user-management (Node/Express/EJS/SQLite/PostgreSQL/Supabase).",
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",

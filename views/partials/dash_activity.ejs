@@ -1,0 +1,51 @@
+<section id="activity" class="sec reveal">
+        <h2 class="sec-h">Activity</h2>
+        <div class="sec-sub">Deposits, withdrawals, trades, and statements.</div>
+        <div class="kpi-grid">
+          <div class="kpi pos"><div class="lbl">Deposits</div><div class="big pos"><%= h.money(1500) %></div></div>
+          <div class="kpi neg"><div class="lbl">Withdrawals</div><div class="big neg"><%= h.money(0) %></div></div>
+          <div class="kpi"><div class="lbl">Trades</div><div class="big"><%= h.money(593.50) %></div></div>
+          <div class="kpi pos"><div class="lbl">Dividends</div><div class="big pos"><%= h.money(dividendsIncome) %></div></div>
+          <div class="kpi pos"><div class="lbl">Interest</div><div class="big pos"><%= h.money(12.40) %></div></div>
+          <div class="kpi"><div class="lbl">Transfers</div><div class="big"><%= h.money(600) %></div></div>
+        </div>
+        <div class="card">
+          <h2>Transactions</h2>
+          <% if (pendingCount && pendingCount > 0) { %>
+          <div class="tx-pending-banner" style="margin-bottom:12px;padding:8px 12px;background:#fff7e6;border:1px solid #fed7aa;border-radius:6px;font-size:13px">
+            &#9888; You have <strong><%= pendingCount %></strong> pending transaction(s) awaiting admin approval. Cash balances will update once approved.
+          </div>
+          <% } %>
+          <table>
+            <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th>Type</th></tr></thead>
+            <tbody>
+              <% activities.forEach(function(a){ %>
+              <tr>
+                <td class="muted"><%= a.adate %></td>
+                <td><%= a.description %></td>
+                <td class="num <%= a.amount>=0?'pos':'neg' %>"><%= a.amount==null?'':h.signedMoney(a.amount) %></td>
+                <td><span class="role user"><%= a.type %></span></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Statements</h2>
+            <ul class="doc-list">
+              <% documents.filter(function(d){ return d.type==='Statement' || d.type==='Report'; }).forEach(function(d){ %>
+              <li><span class="doc-icon">&#128196;</span><span class="doc-main"><span class="doc-name"><%= d.name %></span><span class="doc-meta"><%= d.type %> &middot; <%= d.date %></span></span><a class="btn btn-secondary btn-sm" href="#">View</a></li>
+              <% }); %>
+            </ul>
+          </div>
+          <div class="card insights-half">
+            <h2>Tax documents</h2>
+            <ul class="doc-list">
+              <% documents.filter(function(d){ return d.type==='Tax' || d.type==='Confirmation'; }).forEach(function(d){ %>
+              <li><span class="doc-icon">&#128196;</span><span class="doc-main"><span class="doc-name"><%= d.name %></span><span class="doc-meta"><%= d.type %> &middot; <%= d.date %></span></span><a class="btn btn-secondary btn-sm" href="#">View</a></li>
+              <% }); %>
+            </ul>
+          </div>
+        </div>
+      </section>

@@ -1,0 +1,61 @@
+<section id="watchlists" class="sec reveal">
+        <h2 class="sec-h">Watchlists</h2>
+        <div class="sec-sub">Monitor symbols with real-time price movement.</div>
+        <div class="wl-controls">
+          <label><input type="checkbox" id="wlLive" checked> Real-time quotes</label>
+          <span class="muted">Columns:</span>
+          <span class="chips">
+            <span class="chip on">Symbol</span><span class="chip on">Last</span><span class="chip on">Change</span>
+            <span class="chip on">Change %</span><span class="chip on">Volume</span><span class="chip on">Bid</span><span class="chip on">Ask</span>
+          </span>
+        </div>
+
+        <form class="wl-new" method="post" action="/watchlists/new">
+          <input name="name" placeholder="New watchlist name" maxlength="60" required>
+          <button class="btn btn-secondary btn-sm" type="submit">Create list</button>
+        </form>
+
+        <% watchlists.forEach(function(wl){ %>
+        <div class="card">
+          <h2>
+            <%= wl.name %>
+            <span class="muted" style="font-weight:400;font-size:13px">— custom list</span>
+            <form method="post" action="/watchlists/<%= wl.id %>/delete" style="display:inline" onsubmit="return confirm('Delete this watchlist?');">
+              <button class="btn btn-secondary btn-sm wl-del" type="submit">Delete list</button>
+            </form>
+          </h2>
+          <form class="wl-add" method="post" action="/watchlists/<%= wl.id %>/add">
+            <input name="symbol" placeholder="Add symbol (e.g. AAPL)" maxlength="12" required>
+            <button class="btn btn-secondary btn-sm" type="submit">Add</button>
+          </form>
+          <% if (!wl.items.length) { %>
+            <div class="empty">No symbols yet. Add one above.</div>
+          <% } else { %>
+          <table class="wl-table">
+            <thead><tr><th>Symbol</th><th>Name</th><th class="num">Last</th><th class="num">Change</th><th class="num">Change %</th><th class="num">Volume</th><th class="num">Bid</th><th class="num">Ask</th><th></th></tr></thead>
+            <tbody>
+              <% wl.items.forEach(function(q){ %>
+              <tr data-sym="<%= q.symbol %>">
+                <td><strong><%= q.symbol %></strong></td>
+                <td class="muted"><%= q.name %></td>
+                <td class="num lv-price" data-field="price"><%= h.money(q.price) %></td>
+                <td class="num lv-chg" data-field="change"><%= (q.change>=0?'+':'') + q.change.toFixed(2) %></td>
+                <td class="num lv-pct <%= q.changePct>=0?'pos':'neg' %>" data-field="changePct"><%= h.pct(q.changePct) %></td>
+                <td class="num"><%= h.num(q.volume) %></td>
+                <td class="num"><%= h.money(q.bid) %></td>
+                <td class="num"><%= h.money(q.ask) %></td>
+                <td>
+                  <button class="btn btn-secondary btn-sm trade-btn" data-symbol="<%= q.symbol %>">Trade</button>
+                  <form method="post" action="/watchlists/<%= wl.id %>/remove" style="display:inline">
+                    <input type="hidden" name="symbol" value="<%= q.symbol %>">
+                    <button class="btn btn-secondary btn-sm wl-x" type="submit" title="Remove <%= q.symbol %>">&#215;</button>
+                  </form>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+          <% } %>
+        </div>
+        <% }); %>
+      </section>

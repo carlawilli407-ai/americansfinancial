@@ -1,0 +1,20 @@
+<section id="personalization" class="sec reveal" style="display:none">
+        <h2 class="sec-h">Web personalization</h2>
+        <div class="insights">
+          <div class="card insights-half">
+            <h2>Saved views &amp; widgets</h2>
+            <div class="muted" style="margin-bottom:8px">Saved views</div>
+            <div class="chips"><% personalization.savedViews.forEach(function(v){ %><span class="chip on"><%= v %></span><% }); %></div>
+            <div class="muted" style="margin:14px 0 8px">Dashboard widgets</div>
+            <div class="chips"><% personalization.widgets.forEach(function(w){ %><span class="chip <%= w.on?'on':'off' %>"><%= w.name %></span><% }); %></div>
+          </div>
+          <div class="card insights-half">
+            <h2>Custom columns &amp; filters</h2>
+            <div class="muted" style="margin-bottom:8px">Watchlist columns</div>
+            <div class="chips"><% personalization.columns.forEach(function(c){ %><span class="chip on"><%= c %></span><% }); %></div>
+            <div class="muted" style="margin:14px 0 8px">Account filters</div>
+            <div class="chips"><% personalization.accountFilters.forEach(function(f){ %><span class="chip <%= f==='All accounts'?'on':'off' %>"><%= f %></span><% }); %></div>
+            <div class="muted" style="margin-top:14px">Custom charts &amp; dashboards persist to your profile.</div>
+          </div>
+        </div>
+      </section>
