@@ -121,8 +121,8 @@ app.locals.h = {
 
 // --- marketing homepage: serve the static clone with auth state injected so the
 // nav/CTA reflects login state in a single request (no flash, no extra fetch).
-app.get('/', (req, res) => {
-  const user = req.session && req.session.userId ? db.getUserById(req.session.userId) : null;
+app.get('/', async (req, res) => {
+  const user = req.session && req.session.userId ? await db.getUserById(req.session.userId) : null;
   fs.readFile(path.join(CLONE, 'index.html'), 'utf8', (err, html) => {
     if (err) return res.sendStatus(404);
     const payload = JSON.stringify({
@@ -247,16 +247,16 @@ app.get('/planning', async (req, res) => {
   res.render('dash_planning', { ...data, title: 'Planning - American Financial Associates' });
 });
 
-app.get('/profile', auth.requireAuth, (req, res) => {
-  const profile = db.getProfile(req.session.userId);
-  const transactions = db.listTransactions(req.session.userId);
-  res.render('profile', { profile, transactions, user: res.locals.user, pendingCount: db.pendingTransactionCount(req.session.userId), pw_error: req.query.pw_error, pw_success: req.query.pw_success });
+app.get('/profile', auth.requireAuth, async (req, res) => {
+  const profile = await db.getProfile(req.session.userId);
+  const transactions = await db.listTransactions(req.session.userId);
+  res.render('profile', { profile, transactions, user: res.locals.user, pendingCount: await db.pendingTransactionCount(req.session.userId), pw_error: req.query.pw_error, pw_success: req.query.pw_success });
 });
 
 // ---------- change password ----------
-app.post('/profile/password', auth.requireAuth, (req, res) => {
+app.post('/profile/password', auth.requireAuth, async (req, res) => {
   const { current_password, new_password, confirm_password } = req.body || {};
-  const u = db.getUserById(req.session.userId);
+  const u = await db.getUserById(req.session.userId);
   if (!u || !bcrypt.compareSync(current_password || '', u.password_hash)) {
     return res.redirect('/profile?pw_error=1');
   }
@@ -266,10 +266,10 @@ app.post('/profile/password', auth.requireAuth, (req, res) => {
   if (new_password !== confirm_password) {
     return res.redirect('/profile?pw_error=3');
   }
-  db.setPassword(req.session.userId, new_password);
+  await db.setPassword(req.session.userId, new_password);
   res.redirect('/profile?pw_success=1');
 });
-app.post('/profile', auth.requireAuth, (req, res) => {
+app.post('/profile', auth.requireAuth, async (req, res) => {
   const data = {
     phone: req.body.phone,
     address_line1: req.body.address_line1,
@@ -293,7 +293,7 @@ app.post('/profile', auth.requireAuth, (req, res) => {
     tax_id: req.body.tax_id,
     communication_pref: req.body.communication_pref || null,
   };
-  db.upsertProfile(req.session.userId, data);
+  await db.upsertProfile(req.session.userId, data);
   res.redirect('/profile');
 });
 
