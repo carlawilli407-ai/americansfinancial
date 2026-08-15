@@ -39,14 +39,70 @@ function getSessionSecret() {
   }
 }
 
-seed().catch(err => console.error('[seed] Error:', err.message));
+// --- DB initialization ---
+// On Vercel serverless (cold start), seed()/initDb() would race with the first
+// request. Tables may not exist yet when the first query hits PostgreSQL,
+// causing 500 errors. Instead, lazily initialize on the first request and
+// cache the result so warm starts skip the overhead entirely.
+let dbReady = false;
+let initPromise = null;
+function ensureDbReady() {
+  if (dbReady) return Promise.resolve();
+  if (initPromise) return initPromise;
+  initPromise = (async () => {
+    try {
+      if (typeof db.initDb === 'function') await db.initDb();
+      await seed();
+    } catch (err) {
+      console.error('[init] DB initialization error:', err.message);
+    } finally {
+      dbReady = true;
+    }
+  })();
+  return initPromise;
+}
 
 const app = express();
+
+// --- Auto-catch async errors in route handlers ---
+// Express 4 does NOT automatically forward rejected promises from async
+// middleware/handlers to next(err). Without this, any unhandled DB query
+// rejection hangs the request until Vercel times out (returns 500).
+// We wrap every function registered via app.get/post/use/… so that rejected
+// promises become err-forwarded to the error handler below.
+// Error-handling middleware (4-arg fn) is excluded via length < 4 check.
+(function autoCatchAsyncErrors(app) {
+  const wrap = fn => function (req, res, next) {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+  ['get', 'post', 'put', 'delete', 'patch', 'use'].forEach(method => {
+    const orig = app[method].bind(app);
+    app[method] = function (...args) {
+      return orig(...args.map(arg =>
+        (typeof arg === 'function' && arg.length < 4) ? wrap(arg) : arg
+      ));
+    };
+  });
+})(app);
+
+// Catch unhandled promise rejections at the process level (Vercel Serverless)
+process.on('unhandledRejection', (err) => {
+  console.error('[unhandledRejection]', err);
+});
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(ROOT, 'views'));
 
 app.set('trust proxy', 1); // Trust first proxy for secure cookies
 app.use(express.urlencoded({ extended: false }));
+// --- Ensure DB schema + seed data are ready before serving requests ---
+// Must run BEFORE session middleware (which queries the PG store on cold
+// starts with existing session cookies). After first request, dbReady === true
+// and this is a zero-cost next().
+app.use((req, res, next) => {
+  if (dbReady) return next();
+  ensureDbReady().then(() => next()).catch(() => next());
+});
 app.use(session({
   store: sessionStore,
   secret: getSessionSecret(),
@@ -172,7 +228,7 @@ const loginLock = (() => {
 
 // ---------- auth routes ----------
 app.get('/login', (req, res) => {
-  if (req.session.userId) return res.redirect(res.locals.user.role === 'admin' ? '/admin' : '/dashboard');
+  if (req.session.userId) return res.redirect((res.locals.user && res.locals.user.role === 'admin') ? '/admin' : '/dashboard');
   res.render('login', { error: null, layout: false });
 });
 
@@ -321,7 +377,7 @@ app.get('/dashboard', auth.requireAuth, async (req, res) => {
     externalError: req.query.externalerror === '1',
     orderPlaced: req.query.order === '1',
     transactions: transactions,
-    pendingCount: db.pendingTransactionCount(req.session.userId),
+    pendingCount: await db.pendingTransactionCount(req.session.userId),
   });
 });
 
@@ -334,7 +390,7 @@ async function buildPageData(userId) {
   }
   const defaultAccount = data.accounts.find(function (a) { return a.type === 'Cash Management'; }) || data.accounts[0];
   const transactions = await db.listTransactions(userId);
-  const pendingCount = db.pendingTransactionCount(userId);
+  const pendingCount = await db.pendingTransactionCount(userId);
   return { ...data, defaultAccount, transactions, pendingCount };
 }
 
@@ -800,6 +856,26 @@ app.post('/admin/transactions/:id/decline', auth.requireAdmin, async (req, res) 
   const notes = (req.body && req.body.admin_notes) || '';
   await db.declineTransaction(Number(req.params.id), req.session.userId, notes || 'Declined by admin');
   res.redirect('/admin/transactions/pending');
+});
+
+// --- Global error handler ---
+// Catches all errors forwarded via next(err) (including auto-caught async
+// rejections from the wrapper above) and returns a clean 500 response instead
+// of Express's default HTML stack trace or a hung request.
+app.use((err, req, res, next) => {
+  console.error('[error]', req.method, req.path, err && err.message ? err.message : err);
+  if (res.headersSent) return next(err);
+  const isProd = process.env.NODE_ENV === 'production';
+  res.status(err.status || 500);
+  if (req.path && req.path.startsWith('/static')) {
+    res.type('text/plain').send(isProd ? 'Error' : (err.message || 'Error'));
+  } else {
+    res.type('html').send(
+      isProd
+        ? '<h1>Internal Server Error</h1><p>An unexpected error occurred. Please try again later.</p>'
+        : '<h1>Internal Server Error</h1><pre>' + (err.message || err) + '\n\n' + (err.stack || '') + '</pre>'
+    );
+  }
 });
 
 module.exports = app;
