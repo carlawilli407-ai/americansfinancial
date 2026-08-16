@@ -52,6 +52,7 @@ function ensureDbReady() {
   initPromise = (async () => {
     try {
       if (typeof db.initDb === 'function') await db.initDb();
+      if (typeof db.fixProfilesTable === 'function') await db.fixProfilesTable();
       await seed();
     } catch (err) {
       console.error('[init] DB initialization error:', err.message);
@@ -866,12 +867,13 @@ app.use((err, req, res, next) => {
   console.error('[error]', req.method, req.path, err && err.message ? err.message : err);
   if (res.headersSent) return next(err);
   const isProd = process.env.NODE_ENV === 'production';
+  const showDetails = req.query && req.query.debug === '1';
   res.status(err.status || 500);
   if (req.path && req.path.startsWith('/static')) {
-    res.type('text/plain').send(isProd ? 'Error' : (err.message || 'Error'));
+    res.type('text/plain').send(isProd && !showDetails ? 'Error' : (err.message || 'Error'));
   } else {
     res.type('html').send(
-      isProd
+      (isProd && !showDetails)
         ? '<h1>Internal Server Error</h1><p>An unexpected error occurred. Please try again later.</p>'
         : '<h1>Internal Server Error</h1><pre>' + (err.message || err) + '\n\n' + (err.stack || '') + '</pre>'
     );
