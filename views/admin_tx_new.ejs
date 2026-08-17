@@ -17,7 +17,7 @@
     </div>
 
     <div class="form-card">
-      <% if (error) { %><div class="err" style="background:#fdecea;color:#981077;border:1px solid #f5c2c0;padding:10px 12px;border-radius:4px;font-size:13px;margin-bottom:16px"><%= error %></div><% } %>
+      <% if (typeof error !== 'undefined' && error) { %><div class="err" style="background:#fdecea;color:#981077;border:1px solid #f5c2c0;padding:10px 12px;border-radius:4px;font-size:13px;margin-bottom:16px"><%= error %></div><% } %>
       <form method="post" action="/admin/users/<%= target.id %>/transactions/new">
         <h2>Transaction details</h2>
         <div class="field">

@@ -59,7 +59,7 @@
       <section id="home" class="sec reveal">
         <div class="page-head">
           <div>
-            <h1>Welcome back, <%= user.full_name.split(' ')[0] %></h1>
+            <h1>Welcome back, <%= (user.full_name || user.username || 'User').split(' ')[0] %></h1>
             <div class="muted">Portfolio summary &middot; Last updated just now</div>
           </div>
           <a class="btn btn-secondary btn-sm" href="/activity">View statements</a>

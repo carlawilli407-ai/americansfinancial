@@ -9,6 +9,7 @@
     "seed": "node lib/seed.js",
     "migrate": "node lib/migrate.js",
     "seed-postgres": "node lib/seed-postgres.js",
+    "test:supabase": "node scripts/test-supabase.js",
     "dev": "node -r dotenv/config server.js"
   },
   "dependencies": {

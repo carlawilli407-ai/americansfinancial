@@ -56,9 +56,10 @@ function ensureDbReady() {
       await seed();
     } catch (err) {
       console.error('[init] DB initialization error:', err.message);
-    } finally {
-      dbReady = true;
+      initPromise = null;
+      throw err;
     }
+    dbReady = true;
   })();
   return initPromise;
 }
@@ -102,7 +103,7 @@ app.use(express.urlencoded({ extended: false }));
 // and this is a zero-cost next().
 app.use((req, res, next) => {
   if (dbReady) return next();
-  ensureDbReady().then(() => next()).catch(() => next());
+  ensureDbReady().then(() => next()).catch(next);
 });
 app.use(session({
   store: sessionStore,
@@ -184,7 +185,7 @@ app.get('/', async (req, res) => {
     if (err) return res.sendStatus(404);
     const payload = JSON.stringify({
       loggedIn: !!user,
-      name: user ? user.full_name.split(' ')[0] : null,
+      name: user && user.full_name ? String(user.full_name).split(' ')[0] : null,
       role: user ? user.role : null,
     }).replace(/</g, '\\u003c');
     res.type('html').send(html.replace('</body>', `<script>window.__APP__=${payload}</script></body>`));
@@ -362,7 +363,7 @@ app.get('/dashboard', auth.requireAuth, async (req, res) => {
     const c = await db.getCashPosition(a.id);
     a.cash = c ? c.price : 0;
   }
-  const defaultAccount = data.accounts.find(function (a) { return a.type === 'Cash Management'; }) || data.accounts[0];
+  const defaultAccount = data.accounts.find(function (a) { return a.type === 'Cash Management'; }) || data.accounts[0] || { id: '', type: '', cash: 0, number: '' };
   // load transaction history for the History toggle panel
   const transactions = await db.listTransactions(req.session.userId);
   res.render('dashboard', {
@@ -389,10 +390,24 @@ async function buildPageData(userId) {
     const c = await db.getCashPosition(a.id);
     a.cash = c ? c.price : 0;
   }
-  const defaultAccount = data.accounts.find(function (a) { return a.type === 'Cash Management'; }) || data.accounts[0];
+  const defaultAccount = data.accounts.find(function (a) { return a.type === 'Cash Management'; }) || data.accounts[0] || { id: '', type: '', cash: 0, number: '' };
   const transactions = await db.listTransactions(userId);
   const pendingCount = await db.pendingTransactionCount(userId);
-  return { ...data, defaultAccount, transactions, pendingCount };
+  return {
+    ...data,
+    defaultAccount,
+    transactions,
+    pendingCount,
+    openPanel: null,
+    transferred: false,
+    deposited: false,
+    paid: false,
+    moved: false,
+    payError: false,
+    externaltransferred: false,
+    externalError: false,
+    orderPlaced: false,
+  };
 }
 
 // ---------- standalone dashboard pages ----------
@@ -765,7 +780,9 @@ app.get('/admin/transactions', auth.requireAdmin, async (req, res) => {
   const users = await Promise.all(usersList.map(async u => {
     const accs = await db.listAccounts(u.id);
     const pend = await db.pendingTransactionCount(u.id);
-    return { ...u, accountCount: accs.length, pendingCount: pend };
+    let txCount = 0;
+    try { txCount = await db.getTransactionCount(u.id); } catch (_) {}
+    return { ...u, accountCount: accs.length, pendingCount: pend, txCount };
   }));
   res.render('admin_transactions', { users, user: res.locals.user });
 });
@@ -784,7 +801,7 @@ app.get('/admin/users/:userId/transactions/new', auth.requireAdmin, async (req, 
   const target = await db.getUserById(Number(req.params.userId));
   if (!target) return res.redirect('/admin/transactions');
   const accounts = await db.listAccounts(target.id);
-  res.render('admin_tx_new', { target, accounts, user: res.locals.user });
+  res.render('admin_tx_new', { target, accounts, user: res.locals.user, error: null });
 });
 
 app.post('/admin/users/:userId/transactions/new', auth.requireAdmin, async (req, res) => {
