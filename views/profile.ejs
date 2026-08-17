@@ -42,7 +42,7 @@
         </div>
         <div>
           <div class="muted" style="font-size:12px">Member since</div>
-          <div style="font-weight:600"><%= user.created_at ? user.created_at.replace('T', ' ').substring(0, 16) : 'N/A' %></div>
+          <div style="font-weight:600"><%= user.created_at ? new Date(user.created_at).toISOString().replace('T', ' ').substring(0, 16) : 'N/A' %></div>
         </div>
         <div>
           <div class="muted" style="font-size:12px">Status</div>
