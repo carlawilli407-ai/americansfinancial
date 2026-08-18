@@ -153,6 +153,8 @@ app.use((req, res, next) => {
 });
 app.use((req, res, next) => {
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
+  // Exempt POST /signup - it returns 403 with "account opening unavailable" message
+  if (req.path === '/signup' && req.method === 'POST') return next();
   const cookieToken = readCookie(req, CSRF_COOKIE);
   const bodyToken = req.body && req.body._csrf;
   if (!cookieToken || !bodyToken || cookieToken !== bodyToken) {
@@ -180,16 +182,26 @@ app.locals.h = {
 // --- marketing homepage: serve the static clone with auth state injected so the
 // nav/CTA reflects login state in a single request (no flash, no extra fetch).
 app.get('/', async (req, res) => {
-  const user = req.session && req.session.userId ? await db.getUserById(req.session.userId) : null;
-  fs.readFile(path.join(CLONE, 'index.html'), 'utf8', (err, html) => {
-    if (err) return res.sendStatus(404);
-    const payload = JSON.stringify({
-      loggedIn: !!user,
-      name: user && user.full_name ? String(user.full_name).split(' ')[0] : null,
-      role: user ? user.role : null,
-    }).replace(/</g, '\\u003c');
-    res.type('html').send(html.replace('</body>', `<script>window.__APP__=${payload}</script></body>`));
-  });
+  // Build user payload for client-side auth state (non-blocking)
+  let payload = { loggedIn: false, name: null, role: null };
+  if (req.session && req.session.userId) {
+    try {
+      const user = await db.getUserById(req.session.userId);
+      payload = {
+        loggedIn: !!user,
+        name: user && user.full_name ? String(user.full_name).split(' ')[0] : null,
+        role: user ? user.role : null,
+      };
+    } catch (e) {
+      // Database not ready yet - return guest state, retry on next request
+      console.error('[homepage] DB error:', e.message);
+    }
+  }
+  const html = await require('fs').promises.readFile(path.join(CLONE, 'index.html'), 'utf8')
+    .catch(() => null);
+  if (!html) return res.sendStatus(404);
+  const script = `<script>window.__APP__=${JSON.stringify(payload).replace(/</g, '\\u003c')}</script></body>`;
+  res.type('html').send(html.replace('</body>', script));
 });
 
 // --- consolidated site information page (replaces the stale /pages/* clones) ---
@@ -266,12 +278,12 @@ app.get('/logout', (req, res) => {
 // ---------- self-service signup (account opening currently unavailable) ----------
 // New self-service account applications are not accepted in this deployment.
 app.get('/signup', (req, res) => {
-  if (req.session.userId) return res.redirect('/dashboard');
-  res.render('signup', { layout: false });
+  if (req.session && req.session.userId) return res.redirect('/dashboard');
+  res.render('signup', { user: null, impersonating: false, layout: false, unavailable: true });
 });
 
 app.post('/signup', (req, res) => {
-  res.status(403).render('signup', { unavailable: true, layout: false });
+  res.status(403).render('signup', { user: null, impersonating: false, layout: false, unavailable: true });
 });
 
 // ---------- local guidance hub ----------
