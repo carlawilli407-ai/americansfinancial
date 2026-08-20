@@ -11,3 +11,4 @@ data/
 Thumbs.db.session_secret
 
 .vercel
+.env*

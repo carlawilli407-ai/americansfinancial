@@ -46,3 +46,4 @@ npm run seed
 
 - Admin: admin / admin123
 - User: jdoe / password
+
