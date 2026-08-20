@@ -9,3 +9,5 @@ data/
 .coverage
 .DS_Store
 Thumbs.db.session_secret
+
+.vercel
