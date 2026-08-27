@@ -38,7 +38,7 @@
         </div>
         <div>
           <div class="muted" style="font-size:12px">Member ID</div>
-          <div style="font-weight:600"><%= user.member_id || user.id %></div>
+          <div style="font-weight:600"><%= (profile && profile.member_id) || user.id %></div>
         </div>
         <div>
           <div class="muted" style="font-size:12px">Member since</div>

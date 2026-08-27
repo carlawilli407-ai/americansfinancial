@@ -45,6 +45,7 @@ function getSessionSecret() {
 // causing 500 errors. Instead, lazily initialize on the first request and
 // cache the result so warm starts skip the overhead entirely.
 let dbReady = false;
+let initPromise = null;
 function ensureDbReady() {
   if (dbReady) return Promise.resolve();
   if (initPromise) return initPromise;
