@@ -3,11 +3,11 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/api/server.js"
     }
   ],
   "functions": {
-    "api/index.js": {
+    "api/server.js": {
       "maxDuration": 30
     }
   }
