@@ -1,0 +1,12 @@
+[build]
+  # No build step needed; Netlify will run `npm install` automatically.
+  # If you want an explicit install step, uncomment the next line:
+  # command = "npm install"
+  publish = "."
+  functions = "api"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/api"
+  status = 200
+  force = true

@@ -17,7 +17,26 @@ Account management, trading dashboard, and admin user-management system.
 
 3. **Supabase Transaction Pooler Format:**
    ```
-   postgresql://postgres.PROPERTY_REF:PASSWORD@aws-0-ca-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+   postgresql://postgres.PROPERTY_REF:***@aws-0-ca-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+   ```
+
+### Netlify Deployment
+
+1. **Set Environment Variables in Netlify Dashboard:**
+   - `DATABASE_URL` - PostgreSQL connection string from Supabase (use Transaction pooler port 6543)
+   - `SESSION_SECRET` - Random string for session encryption
+
+2. **Database Setup (run once):**
+   - Connect to your Supabase/Railway database
+   - Run `npm run migrate` to create tables and enable RLS
+
+3. **Site Settings:**
+   - Functions directory: `api`
+   - `netlify.toml` is included in the repo for automatic function routing
+
+4. **Supabase Transaction Pooler Format:**
+   ```
+   postgresql://postgres.PROPERTY_REF:***@aws-0-ca-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true
    ```
 
 ### Local Development
